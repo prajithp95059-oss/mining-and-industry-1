@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — STACKLY</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Montserrat:wght@300;400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#D4A017;--gold-light:#F5C842;
+  --dark:#0A0A0A;--dark-2:#111111;--dark-3:#1A1A1A;--dark-4:#222;
+  --white:#F0EDE8;--gray:#888;--border:rgba(212,160,23,0.12);
+  --green:#4CAF82;--red:#E55353;--blue:#4A9EDB;--orange:#FF9800;--purple:#a855f7;
+  --sidebar-w:240px;
+  --font-display:'Playfair Display',serif;
+  --font-heading:'Montserrat',sans-serif;
+  --font-body:'Rajdhani',sans-serif;
+}
+html,body{height:100%;width:100%;max-width:100vw;overflow-x:hidden}
+body{background:var(--dark);color:var(--white);font-family:var(--font-heading);overflow-x:hidden;display:flex;flex-direction:column}
+
+/* ══ LAYOUT SHELL ══ */
+.shell{display:flex;min-height:100vh;width:100%;flex:1;overflow-x:hidden}
+
+/* ══ SIDEBAR ══ */
+.sidebar{
+  width:var(--sidebar-w);flex-shrink:0;
+  background:var(--dark-2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;bottom:0;z-index:300;
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;
+  text-decoration: none;
+}
+.sidebar-logo{padding:20px 18px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sidebar-logo img{height:30px;filter:brightness(1.1);display:block}
+.sidebar-logo span{display:block;font-family:var(--font-body);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gray);margin-top:5px}
+
+.sidebar-nav{flex:1;overflow-y:auto;padding:10px 0;scrollbar-width:thin;scrollbar-color:rgba(212,160,23,.2) transparent}
+.sidebar-nav::-webkit-scrollbar{width:3px}
+.sidebar-nav::-webkit-scrollbar-thumb{background:rgba(212,160,23,.2);border-radius:4px}
+
+.nav-section{padding:12px 18px 4px;font-family:var(--font-body);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(136,136,136,.45)}
+.sidebar-link{display:flex;align-items:center;gap:10px;padding:9px 18px;color:var(--gray);text-decoration:none;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;position:relative;border-left:2px solid transparent;user-select:none}
+.sidebar-link:hover{color:var(--white);background:rgba(212,160,23,.05);border-left-color:rgba(212,160,23,.3)}
+.sidebar-link.active{color:var(--white);background:rgba(212,160,23,.08);border-left-color:var(--gold)}
+.sidebar-link .s-icon{font-size:14px;width:20px;text-align:center;flex-shrink:0}
+.sidebar-link .badge{margin-left:auto;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;font-family:var(--font-body);letter-spacing:1px}
+.badge.gold-badge{background:rgba(212,160,23,.2);color:var(--gold);border:1px solid rgba(212,160,23,.3)}
+.badge.red-badge{background:rgba(229,83,83,.2);color:var(--red);border:1px solid rgba(229,83,83,.3)}
+
+.sidebar-bottom{flex-shrink:0;border-top:1px solid var(--border)}
+.sb-user{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--border)}
+.sb-avatar{width:36px;height:36px;background:linear-gradient(135deg,var(--gold),#7a5500);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-body);font-size:13px;font-weight:700;color:#000;flex-shrink:0}
+.sb-info{flex:1;min-width:0}
+.sb-info .sb-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-info .sb-title{font-size:9px;color:var(--gold);letter-spacing:1px;text-transform:uppercase;font-family:var(--font-body)}
+.sb-info .sb-email{font-size:10px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.signout-btn{display:flex;align-items:center;gap:8px;padding:10px 18px;color:var(--gray);font-size:12px;cursor:pointer;transition:all .2s;border:none;font-weight:500;background:none;width:100%;text-align:left;text-decoration:none}
+.signout-btn:hover{color:var(--red);background:rgba(229,83,83,.05)}
+
+/* ══ OVERLAY ══ */
+.sidebar-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.65);z-index:299;
+  backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+  cursor:pointer;touch-action:none;
+}
+.sidebar-overlay.show{display:block}
+
+/* ══ MAIN ══ */
+.main{
+  margin-left:var(--sidebar-w);
+  flex:1;
+  width:calc(100% - var(--sidebar-w));
+  max-width:calc(100% - var(--sidebar-w));
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+.sidebar-nav a {
+  text-decoration: none;
+}
+
+/* ══ TOPBAR ══ */
+.topbar{
+  width:100%;
+  background:var(--dark-2);border-bottom:1px solid var(--border);
+  padding:0 24px;height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:200;flex-shrink:0;gap:12px;
+  overflow:hidden;
+}
+.topbar-left{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
+.ham-btn{display:none;background:none;border:none;cursor:pointer;padding:6px 4px;color:var(--white);flex-shrink:0;-webkit-tap-highlight-color:transparent}
+.ham-btn:hover{color:var(--gold)}
+.topbar-title{min-width:0;overflow:hidden}
+.topbar-title h1{font-family:var(--font-heading);font-size:17px;font-weight:700;letter-spacing:3px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar-title p{font-size:11px;color:var(--gray);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--dark-3);border:1px solid var(--border);padding:7px 12px;min-width:180px;border-radius:2px;transition:border-color .2s}
+.search-bar:focus-within{border-color:rgba(212,160,23,.4)}
+.search-bar input{background:none;border:none;outline:none;color:var(--white);font-size:12px;font-family:var(--font-heading);width:100%}
+.search-bar input::placeholder{color:var(--gray)}
+.tb-btn{width:32px;height:32px;background:var(--dark-3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--gray);text-decoration:none;transition:border-color .2s;position:relative;flex-shrink:0;border-radius:2px}
+.tb-btn:hover{border-color:var(--gold);color:var(--white)}
+.notif-dot{position:absolute;top:4px;right:4px;width:5px;height:5px;background:var(--red);border-radius:50%}
+.tb-avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--gold),#7a5500);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-body);font-size:11px;font-weight:700;color:#000;cursor:pointer;flex-shrink:0}
+
+/* ══ PAGE BODY ══ */
+.page-body{
+  padding:20px 24px 32px;
+  flex:1;
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+  box-sizing:border-box;
+}
+
+/* ══ QUICK ACTIONS ══ */
+.quick-actions{width:100%;display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.qa-btn{background:var(--dark-2);border:1px solid var(--border);padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;transition:all .2s;text-decoration:none;color:var(--white)}
+.qa-btn:hover{border-color:var(--gold);background:rgba(212,160,23,.06);transform:translateY(-2px)}
+.qa-icon{font-size:18px}
+.qa-label{font-family:var(--font-body);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gray);text-align:center;line-height:1.3}
+
+/* ══ KPI STATS ══ */
+.stats-row{width:100%;display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
+.kpi-card{background:var(--dark-2);border:1px solid var(--border);padding:18px 14px;transition:all .25s;position:relative;overflow:hidden;cursor:default}
+.kpi-card:hover{border-color:rgba(212,160,23,.4);transform:translateY(-2px)}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(212,160,23,.5),transparent);opacity:0;transition:opacity .3s}
+.kpi-card:hover::before{opacity:1}
+.kpi-icon{position:absolute;right:12px;top:14px;font-size:22px;opacity:.12}
+.kpi-label{font-family:var(--font-body);font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gray);margin-bottom:8px}
+.kpi-val{font-family:var(--font-display);font-size:30px;color:var(--white);line-height:1;margin-bottom:5px}
+.kpi-delta{font-size:10px;font-weight:500}
+.kpi-delta.up{color:var(--green)}
+.kpi-delta.down{color:var(--red)}
+
+/* ══ GRID LAYOUTS ══ */
+.grid-2{width:100%;display:grid;grid-template-columns:1.55fr 1fr;gap:16px;margin-bottom:16px}
+.grid-3{width:100%;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.grid-2-eq{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+
+/* ══ CARD ══ */
+.card{background:var(--dark-2);border:1px solid var(--border);padding:20px;min-width:0;overflow:hidden}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:6px}
+.card-title{font-family:var(--font-body);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--white);font-weight:700}
+.card-sub{font-size:11px;color:var(--gray);margin-top:2px}
+.card-action{font-size:10px;color:var(--gold);text-decoration:none;letter-spacing:1px;cursor:pointer;font-weight:500;font-family:var(--font-body);text-transform:uppercase;transition:opacity .2s;white-space:nowrap}
+.card-action:hover{opacity:.65}
+
+/* ══ REVENUE CHART ══ */
+.rev-months{display:flex;align-items:flex-end;gap:4px;height:120px}
+.rev-bar-wrap{display:flex;flex-direction:column;align-items:center;flex:1;gap:4px;height:100%;justify-content:flex-end}
+.rev-bar{width:100%;border-radius:2px 2px 0 0;min-height:3px;transition:height .9s cubic-bezier(.4,0,.2,1);cursor:pointer}
+.rev-bar.gold-bar{background:linear-gradient(180deg,var(--gold-light),var(--gold))}
+.rev-bar.dimmed{background:var(--dark-4)}
+.rev-bar:hover{opacity:.8}
+.rev-bar-label{font-size:8px;color:var(--gray);font-family:var(--font-body)}
+.rev-totals{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding-top:14px;border-top:1px solid var(--border);margin-top:14px}
+.rv-item{display:flex;flex-direction:column;gap:2px}
+.rv-label{font-family:var(--font-body);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--gray)}
+.rv-val{font-family:var(--font-display);font-size:18px;color:var(--white);line-height:1}
+.rv-delta{font-size:10px;font-weight:600;color:var(--green)}
+
+/* ══ DONUT CHART ══ */
+.donut-wrap{display:flex;align-items:center;gap:18px}
+.donut-legend{display:flex;flex-direction:column;gap:9px;flex:1;min-width:0}
+.donut-item{display:flex;align-items:center;gap:8px}
+.donut-swatch{width:8px;height:8px;flex-shrink:0;border-radius:1px}
+.donut-row{display:flex;align-items:center;justify-content:space-between;flex:1;gap:6px;min-width:0}
+.donut-name{font-size:11px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.donut-pct-bar{height:2px;background:var(--dark-3);flex:1;overflow:hidden;min-width:20px}
+.donut-pct-fill{height:100%;transition:width 1s ease}
+.donut-pct{font-size:11px;font-weight:600;color:var(--white);min-width:26px;text-align:right}
+
+/* ══ BAR CHART ══ */
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:110px}
+.bar-wrap{display:flex;flex-direction:column;align-items:center;flex:1;gap:4px;height:100%;justify-content:flex-end}
+.bar{width:100%;border-radius:2px 2px 0 0;transition:height .9s ease;cursor:pointer;min-height:3px}
+.bar:hover{opacity:.75}
+.bar.gold{background:linear-gradient(180deg,var(--gold-light),var(--gold))}
+.bar.blue{background:linear-gradient(180deg,#7BC4F0,var(--blue))}
+.bar.green{background:linear-gradient(180deg,#72E0AA,var(--green))}
+.bar-label{font-family:var(--font-body);font-size:8px;color:var(--gray);text-align:center}
+
+/* ══ PROJECTS TABLE ══ */
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%;max-width:100%}
+.data-table{width:100%;border-collapse:collapse;min-width:420px}
+.data-table th{padding:8px 10px;text-align:left;font-family:var(--font-body);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--gray);border-bottom:1px solid var(--border)}
+.data-table td{padding:10px 10px;font-size:12px;color:var(--white);border-bottom:1px solid rgba(212,160,23,.05);vertical-align:middle}
+.data-table tr:hover td{background:rgba(212,160,23,.02)}
+.data-table tr:last-child td{border-bottom:none}
+.proj-name{font-size:12px;font-weight:600;margin-bottom:1px}
+.proj-meta{font-size:10px;color:var(--gray)}
+.status-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;font-family:var(--font-body);font-size:9px;letter-spacing:1px;text-transform:uppercase;font-weight:700}
+.status-badge::before{content:'';width:4px;height:4px;border-radius:50%}
+.status-badge.active{background:rgba(76,175,130,.1);color:var(--green);border:1px solid rgba(76,175,130,.2)}.status-badge.active::before{background:var(--green)}
+.status-badge.pending{background:rgba(255,152,0,.1);color:var(--orange);border:1px solid rgba(255,152,0,.2)}.status-badge.pending::before{background:var(--orange)}
+.status-badge.review{background:rgba(74,158,219,.1);color:var(--blue);border:1px solid rgba(74,158,219,.2)}.status-badge.review::before{background:var(--blue)}
+.status-badge.critical{background:rgba(229,83,83,.1);color:var(--red);border:1px solid rgba(229,83,83,.2)}.status-badge.critical::before{background:var(--red)}
+.prog-cell{display:flex;align-items:center;gap:7px;min-width:80px}
+.mini-bar{flex:1;min-width:40px;height:3px;background:var(--dark-3);overflow:hidden}
+.mini-fill{height:100%;background:var(--gold)}.mini-fill.g{background:var(--green)}.mini-fill.b{background:var(--blue)}
+.mini-pct{font-size:10px;color:var(--gray);min-width:28px;text-align:right;font-family:var(--font-body)}
+.action-btns{display:flex;gap:4px}
+.act-btn{padding:3px 8px;background:var(--dark-3);border:1px solid var(--border);color:var(--gray);font-size:9px;letter-spacing:1px;cursor:pointer;transition:all .2s;font-family:var(--font-body);text-transform:uppercase;font-weight:600}
+.act-btn:hover{border-color:var(--gold);color:var(--gold)}
+.act-btn.danger:hover{border-color:var(--red);color:var(--red)}
+
+/* ══ REGION LIST ══ */
+.region-list{display:flex;flex-direction:column;gap:10px}
+.region-item{display:flex;align-items:center;gap:10px}
+.region-flag{font-size:16px;width:24px;text-align:center;flex-shrink:0}
+.region-info{flex:1;min-width:0}
+.region-name{font-size:12px;font-weight:600}
+.region-detail{font-size:10px;color:var(--gray)}
+.region-bar-wrap{width:80px;height:3px;background:var(--dark-3);flex-shrink:0}
+.region-bar{height:100%;background:var(--gold);transition:width 1s ease}
+.region-val{font-size:11px;font-weight:600;color:var(--white);min-width:46px;text-align:right;flex-shrink:0}
+
+/* ══ FINANCIAL ══ */
+.fin-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(212,160,23,.06);gap:8px}
+.fin-row:last-child{border-bottom:none}
+.fin-label{font-size:11px;color:var(--gray);flex:1;min-width:0}
+.fin-val{font-size:12px;font-weight:600;color:var(--white);white-space:nowrap;flex-shrink:0}
+.fin-val.up{color:var(--green)}.fin-val.dn{color:var(--red)}
+
+/* ══ EQUIPMENT ══ */
+.equip-list{display:flex;flex-direction:column;gap:7px}
+.equip-item{display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--dark-3);border:1px solid var(--border)}
+.equip-id{font-family:var(--font-body);font-size:10px;font-weight:700;color:var(--gold);letter-spacing:1px;min-width:40px;flex-shrink:0}
+.equip-name{font-size:11px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.equip-bar-wrap{width:60px;height:3px;background:var(--dark-4);flex-shrink:0}
+.equip-bar{height:100%;transition:width 1s ease}
+.equip-util{font-family:var(--font-body);font-size:10px;font-weight:700;min-width:28px;text-align:right;flex-shrink:0}
+.equip-status{font-size:8px;padding:2px 7px;font-family:var(--font-body);letter-spacing:1px;font-weight:700;white-space:nowrap;flex-shrink:0}
+
+/* ══ TEAM GRID ══ */
+.team-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.team-card{display:flex;align-items:center;gap:9px;padding:10px;background:var(--dark-3);border:1px solid var(--border);transition:border-color .2s;min-width:0}
+.team-card:hover{border-color:rgba(212,160,23,.3)}
+.team-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-body);font-size:11px;font-weight:700;color:#000;flex-shrink:0}
+.team-info{flex:1;min-width:0}
+.team-name{font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.team-role{font-size:10px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.team-status{font-size:8px;padding:2px 6px;font-family:var(--font-body);letter-spacing:1px;text-transform:uppercase;font-weight:700;white-space:nowrap;flex-shrink:0}
+.team-status.online{background:rgba(76,175,130,.12);color:var(--green);border:1px solid rgba(76,175,130,.2)}
+.team-status.away{background:rgba(255,152,0,.1);color:var(--orange);border:1px solid rgba(255,152,0,.2)}
+.team-status.offline{background:rgba(136,136,136,.1);color:var(--gray);border:1px solid rgba(136,136,136,.15)}
+
+/* ══ INVOICE TABLE ══ */
+.invoice-table{width:100%;border-collapse:collapse}
+.invoice-table th{padding:7px 10px;text-align:left;font-family:var(--font-body);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--gray);border-bottom:1px solid var(--border)}
+.invoice-table td{padding:10px 10px;font-size:11px;border-bottom:1px solid rgba(212,160,23,.05)}
+.invoice-table tr:last-child td{border-bottom:none}
+.inv-id{font-family:var(--font-body);font-size:10px;letter-spacing:1px;color:var(--gold);font-weight:700}
+.pay-status{font-size:8px;padding:2px 7px;font-family:var(--font-body);letter-spacing:1px;font-weight:700}
+.pay-status.paid{background:rgba(76,175,130,.1);color:var(--green);border:1px solid rgba(76,175,130,.2)}
+.pay-status.pending{background:rgba(255,152,0,.1);color:var(--orange);border:1px solid rgba(255,152,0,.2)}
+.pay-status.overdue{background:rgba(229,83,83,.1);color:var(--red);border:1px solid rgba(229,83,83,.2)}
+
+/* ══ ACTIVITY ══ */
+.activity-list{display:flex;flex-direction:column}
+.act-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid rgba(212,160,23,.05)}
+.act-item:last-child{border-bottom:none}
+.act-dot{width:7px;height:7px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.act-body{flex:1;font-size:11px;line-height:1.5;color:rgba(240,237,232,.7);min-width:0}
+.act-body strong{color:var(--white);font-weight:600}
+.act-time{font-size:10px;color:var(--gray);white-space:nowrap;font-family:var(--font-body);flex-shrink:0}
+
+/* ══ ALERTS ══ */
+.alert-list{display:flex;flex-direction:column;gap:8px}
+.alert-item{display:flex;gap:10px;align-items:flex-start;padding:12px;border-left:3px solid}
+.alert-item.err{background:rgba(229,83,83,.04);border-color:var(--red)}
+.alert-item.warn{background:rgba(255,152,0,.04);border-color:var(--orange)}
+.alert-item.info{background:rgba(74,158,219,.04);border-color:var(--blue)}
+.alert-item.success{background:rgba(76,175,130,.04);border-color:var(--green)}
+.al-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.al-body{flex:1;min-width:0}
+.al-title{font-size:11px;font-weight:600;margin-bottom:2px}
+.al-desc{font-size:10px;color:var(--gray);line-height:1.5}
+.al-dismiss{font-size:15px;color:var(--gray);cursor:pointer;padding:0 3px;background:none;border:none;line-height:1;flex-shrink:0}
+.al-dismiss:hover{color:var(--white)}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--dark)}
+::-webkit-scrollbar-thumb{background:rgba(212,160,23,.2);border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:rgba(212,160,23,.4)}
+
+/* ══════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════ */
+
+/* Hide less-critical columns on narrow screens */
+@media(max-width:520px){
+  .col-budget,.col-actions{display:none}
+  .data-table{min-width:unset}
+}
+
+@media(max-width:1200px) and (min-width:901px){
+  .stats-row{grid-template-columns:repeat(3,1fr)}
+  .quick-actions{grid-template-columns:repeat(3,1fr)}
+  .grid-2{grid-template-columns:1fr}
+  .grid-3{grid-template-columns:1fr 1fr}
+  .grid-2-eq{grid-template-columns:1fr}
+  .rev-totals{grid-template-columns:1fr 1fr}
+  .kpi-val{font-size:26px}
+}
+
+/* Mobile: ≤900px */
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0);box-shadow:8px 0 40px rgba(0,0,0,.7)}
+  .sidebar-link{padding:11px 18px;font-size:14px;min-height:46px}
+
+  /* Full-width main when sidebar is off-canvas */
+  .main{
+    margin-left:0 !important;
+    width:100% !important;
+    max-width:100% !important;
+  }
+
+  .ham-btn{display:flex}
+  .topbar{width:100%;padding:0 14px;height:52px}
+  .topbar-title h1{font-size:14px;letter-spacing:1.5px}
+  .topbar-title p{font-size:10px}
+  .search-bar{display:none}
+  .tb-btn{width:30px;height:30px}
+  .tb-avatar{width:30px;height:30px;font-size:10px}
+
+  .page-body{padding:14px 14px 24px}
+
+  .quick-actions{grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+  .qa-btn{padding:12px 6px;gap:6px}
+  .qa-icon{font-size:16px}
+  .qa-label{font-size:8px;letter-spacing:1px}
+
+  .stats-row{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+  .kpi-card{padding:14px 12px}
+  .kpi-val{font-size:26px}
+  .kpi-label{font-size:8px;letter-spacing:2px;margin-bottom:6px}
+  .kpi-delta{font-size:10px}
+  .kpi-icon{display:none}
+
+  .grid-2,.grid-3,.grid-2-eq{grid-template-columns:1fr;gap:12px;margin-bottom:12px}
+  .card{padding:14px 12px}
+  .card-title{font-size:9px;letter-spacing:2px}
+
+  .rev-months{height:90px}
+  .rev-totals{grid-template-columns:1fr 1fr;gap:8px;padding-top:10px;margin-top:10px}
+  .rv-val{font-size:16px}
+
+  .team-grid{grid-template-columns:1fr}
+
+  .donut-wrap svg{width:90px;height:90px}
+  .donut-name{font-size:11px}
+
+  .equip-name{font-size:10px}
+  .equip-bar-wrap{display:none}
+
+  .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%}
+  .data-table th,.data-table td{white-space:nowrap;padding:8px 8px;font-size:11px}
+  .invoice-table th,.invoice-table td{white-space:nowrap;padding:8px 8px;font-size:11px}
+
+  .region-bar-wrap{width:55px}
+  .region-val{font-size:11px;min-width:42px}
+
+  .bar-chart{height:80px}
+  .bar-label{font-size:8px}
+
+  /* Financial summary — ensure values don't overflow */
+  .fin-val{font-size:11px}
+  .fin-label{font-size:10px}
+}
+.tb-avatar a{
+  text-decoration: none;}
+
+/* Small mobile: ≤480px */
+@media(max-width:480px){
+  .topbar{width:100%;padding:0 12px;height:48px}
+  .topbar-title h1{font-size:13px;letter-spacing:1px}
+  .topbar-title p{display:none}
+  .tb-btn.hide-xs{display:none}
+
+  .page-body{padding:10px 10px 20px}
+
+  .quick-actions{grid-template-columns:1fr 1fr;gap:7px}
+  .stats-row{gap:8px}
+  .kpi-card{padding:12px 10px}
+  .kpi-val{font-size:22px}
+
+  .grid-2,.grid-3,.grid-2-eq{gap:10px}
+  .card{padding:12px 11px}
+  .card-header{flex-direction:column;align-items:flex-start;gap:4px}
+
+  .rev-months{height:70px}
+  .rv-val{font-size:15px}
+  .rev-totals{grid-template-columns:1fr 1fr}
+
+  .team-grid{grid-template-columns:1fr}
+  .action-btns{gap:3px}
+  .act-btn{padding:2px 6px;font-size:8px}
+
+  .sidebar{width:260px;max-width:85vw}
+
+  /* Shrink financial values further on very small screens */
+  .fin-row{flex-wrap:wrap;gap:4px}
+  .fin-val{font-size:11px}
+  .fin-label{font-size:10px}
+
+  /* Region list compact */
+  .region-bar-wrap{display:none}
+  .region-val{min-width:auto}
+}
+
+@media(max-width:400px){
+  .prog-cell .mini-bar{display:none}
+  .mini-pct{min-width:auto}
+  .proj-meta{font-size:9px}
+  .stats-row{grid-template-columns:1fr}
+}
+
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="sidebar-overlay" id="overlay"></div>
+
+<div class="shell">
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <a href="index.html"><img src="./assets/stackly-removebg-preview.webp" alt="STACKLY"></a>
+    <span>Admin Portal</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Dashboard</div>
+    <div class="sidebar-link active"><span class="s-icon">📊</span><a href="./error.html"></a>Overview</div></a>
+    <a href="./error.html"><div class="sidebar-link"><span class="s-icon">📈</span>Analytics</div></a>
+    <div class="nav-section">Operations</div>
+    <a href="./error.html"><div class="sidebar-link"><span class="s-icon">🏗️</span>Projects<span class="badge gold-badge">12</span></div></a>
+    <a href="./error.html"><div class="sidebar-link"><span class="s-icon">⚙️</span>Equipment<span class="badge red-badge">2</span></div></a>
+    <a href="./error.html"><div class="sidebar-link"><span class="s-icon">📁</span>Documents</div></a>
+    <a href="./error.html"><div class="sidebar-link"><span class="s-icon">📄</span>Reports</div></a>
+    <div class="nav-section">Finance</div>
+    <a href="./error.html"><div class="sidebar-link"><span class="s-icon">💰</span>Finances</div></a>
+    <a href="./error.html"><div class="sidebar-link"><span class="s-icon">🧾</span>Invoices<span class="badge red-badge">3</span></div></a>
+    <a href="./error.html"><div class="sidebar-link"><span class="s-icon">📉</span>Budgets</div></a>
+    <div class="nav-section">People</div>
+    <a href="./error.html"><div class="sidebar-link"><span class="s-icon">👥</span>Users<span class="badge red-badge">3</span></div></a>
+    <a href="./error.html"><div class="sidebar-link"><span class="s-icon">🛡️</span>HSE &amp; Safety</div></a>
+    <div class="nav-section">System</div>
+   <a href="./error.html"> <div class="sidebar-link"><span class="s-icon">🔔</span>Notifications<span class="badge gold-badge">5</span></div></a>
+   <a href="./error.html"> <div class="sidebar-link"><span class="s-icon">📋</span>Audit Logs</div></a>
+    <a href="./error.html"><div class="sidebar-link"><span class="s-icon">🔧</span>Settings</div></a>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="sb-user">
+      <div class="sb-avatar" id="sb-avatar">JS</div>
+      <div class="sb-info">
+        <div class="sb-name" id="sb-name">James Sullivan</div>
+        <div class="sb-title" id="sb-title">Super Admin</div>
+        <div class="sb-email" id="sb-email">admin@stackly.com</div>
+      </div>
+    </div>
+    <a href="index.html" class="signout-btn" onclick="closeSidebar()">🏠&nbsp;&nbsp;Back to Home</a>
+    <button class="signout-btn" onclick="closeSidebar();adminSignOut()">🚪&nbsp;&nbsp;Sign Out</button>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <button id="ham-btn" class="ham-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="topbar-title">
+        <h1>Admin Dashboard</h1>
+        <p id="topbar-date">Loading…</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+
+      <a href="./error.html"><div class="tb-btn" title="Notifications">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-dot"></span>
+      </div></a>
+     <a href="./error.html"> <div class="tb-btn hide-xs" title="Messages">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div></a>
+      <a href="index.html" class="tb-btn hide-xs" title="Home">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </a>
+      <a href="./error.html"><div class="tb-avatar" id="tb-avatar">JS</div></a>
+    </div>
+  </div>
+
+  <!-- PAGE BODY -->
+  <div class="page-body">
+
+    <!-- QUICK ACTIONS -->
+    <div class="quick-actions">
+      <a href="./error.html" class="qa-btn"><span class="qa-icon">➕</span><span class="qa-label">New Project</span></a>
+      <a href="./error.html" class="qa-btn"><span class="qa-icon">👤</span><span class="qa-label">Add User</span></a>
+      <a href="./error.html" class="qa-btn"><span class="qa-icon">🧾</span><span class="qa-label">New Invoice</span></a>
+      <a href="./error.html" class="qa-btn"><span class="qa-icon">📊</span><span class="qa-label">Run Report</span></a>
+      <a href="./error.html" class="qa-btn"><span class="qa-icon">📤</span><span class="qa-label">Export Data</span></a>
+    </div>
+
+    <!-- KPI STATS -->
+    <div class="stats-row">
+      <div class="kpi-card"><span class="kpi-icon">🏗️</span><div class="kpi-label">Active Projects</div><div class="kpi-val" id="kpi1">0</div><div class="kpi-delta up">↑ 3 launched this month</div></div>
+      <div class="kpi-card"><span class="kpi-icon">💰</span><div class="kpi-label">YTD Revenue</div><div class="kpi-val" id="kpi2">$0M</div><div class="kpi-delta up">↑ 18.4% vs last year</div></div>
+      <div class="kpi-card"><span class="kpi-icon">👥</span><div class="kpi-label">Team Members</div><div class="kpi-val" id="kpi3">0</div><div class="kpi-delta up">↑ 12 new hires</div></div>
+      <div class="kpi-card"><span class="kpi-icon">⛏️</span><div class="kpi-label">Tonnes Extracted</div><div class="kpi-val" id="kpi4">0K</div><div class="kpi-delta up">↑ 6.2% above target</div></div>
+      <div class="kpi-card"><span class="kpi-icon">🛡️</span><div class="kpi-label">Safety Score</div><div class="kpi-val" id="kpi5">0%</div><div class="kpi-delta up">↑ 0.8% this quarter</div></div>
+    </div>
+
+    <!-- REVENUE + DISTRIBUTION -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Monthly Revenue — 2026</div><div class="card-sub">Actual vs projected ($M)</div></div>
+          <a href="./error.html" class="card-action">Full Report →</a>
+        </div>
+        <div class="rev-months" id="rev-chart"></div>
+        <div class="rev-totals">
+          <div class="rv-item"><span class="rv-label">YTD Revenue</span><span class="rv-val">$847M</span><span class="rv-delta">↑ 18.4%</span></div>
+          <div class="rv-item"><span class="rv-label">Q4 Target</span><span class="rv-val">$280M</span><span class="rv-delta">On track</span></div>
+          <div class="rv-item"><span class="rv-label">Avg / Month</span><span class="rv-val">$106M</span><span class="rv-delta">↑ 12%</span></div>
+          <div class="rv-item"><span class="rv-label">Gross Margin</span><span class="rv-val">34.2%</span><span class="rv-delta">↑ 2.1pp</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Project Distribution</div><div class="card-sub">By type · 12 active</div></div>
+          <a href="./error.html" class="card-action">Details →</a>
+        </div>
+        <div class="donut-wrap" style="margin-top:8px">
+          <svg width="110" height="110" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="46" fill="none" stroke="var(--dark-3)" stroke-width="14"/>
+            <circle cx="60" cy="60" r="46" fill="none" stroke="var(--gold)" stroke-width="14" stroke-dasharray="289" stroke-dashoffset="289" stroke-linecap="round" transform="rotate(-90 60 60)" id="donut1"/>
+            <circle cx="60" cy="60" r="46" fill="none" stroke="var(--blue)" stroke-width="14" stroke-dasharray="289" stroke-dashoffset="289" stroke-linecap="round" transform="rotate(-90 60 60)" id="donut2"/>
+            <circle cx="60" cy="60" r="46" fill="none" stroke="var(--green)" stroke-width="14" stroke-dasharray="289" stroke-dashoffset="289" stroke-linecap="round" transform="rotate(-90 60 60)" id="donut3"/>
+            <circle cx="60" cy="60" r="46" fill="none" stroke="var(--purple)" stroke-width="14" stroke-dasharray="289" stroke-dashoffset="289" stroke-linecap="round" transform="rotate(-90 60 60)" id="donut4"/>
+            <text x="60" y="56" text-anchor="middle" font-family="Playfair Display" font-size="20" fill="var(--white)">12</text>
+            <text x="60" y="70" text-anchor="middle" font-size="8" fill="var(--gray)" font-family="Rajdhani">PROJECTS</text>
+          </svg>
+          <div class="donut-legend">
+            <div class="donut-item"><div class="donut-swatch" style="background:var(--gold)"></div><div class="donut-row"><span class="donut-name">Surface Mining</span><div class="donut-pct-bar"><div class="donut-pct-fill" style="width:0%;background:var(--gold)" data-w="42%"></div></div><span class="donut-pct">42%</span></div></div>
+            <div class="donut-item"><div class="donut-swatch" style="background:var(--blue)"></div><div class="donut-row"><span class="donut-name">Underground</span><div class="donut-pct-bar"><div class="donut-pct-fill" style="width:0%;background:var(--blue)" data-w="33%"></div></div><span class="donut-pct">33%</span></div></div>
+            <div class="donut-item"><div class="donut-swatch" style="background:var(--green)"></div><div class="donut-row"><span class="donut-name">Processing</span><div class="donut-pct-bar"><div class="donut-pct-fill" style="width:0%;background:var(--green)" data-w="17%"></div></div><span class="donut-pct">17%</span></div></div>
+            <div class="donut-item"><div class="donut-swatch" style="background:var(--purple)"></div><div class="donut-row"><span class="donut-name">Geo Surveys</span><div class="donut-pct-bar"><div class="donut-pct-fill" style="width:0%;background:var(--purple)" data-w="8%"></div></div><span class="donut-pct">8%</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3-COL BAR CHARTS -->
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Output by Commodity</div></div>
+        <div class="bar-chart" id="bar-commodity"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Equipment Utilisation</div></div>
+        <div class="bar-chart" id="bar-equip"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Safety Incidents (YTD)</div></div>
+        <div class="bar-chart" id="bar-safety"></div>
+      </div>
+    </div>
+
+    <!-- PROJECTS TABLE + REGIONAL -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Active Projects</div><div class="card-sub">12 projects · 9 countries</div></div>
+          <a href="./error.html" class="card-action">Manage All →</a>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Project</th><th>Status</th><th>Progress</th><th class="col-budget">Budget</th><th class="col-actions">Actions</th></tr></thead>
+            <tbody>
+              <tr><td><div class="proj-name">Pilbara Phase III</div><div class="proj-meta">🇦🇺 Iron Ore — W. Australia</div></td><td><span class="status-badge active">Active</span></td><td><div class="prog-cell"><div class="mini-bar"><div class="mini-fill" style="width:78%"></div></div><span class="mini-pct">78%</span></div></td><td class="col-budget" style="font-size:11px;color:var(--white)">$142M</td><td class="col-actions"><div class="action-btns"><button class="act-btn" onclick="window.location.href='./error.html'">View</button><button class="act-btn" onclick="window.location.href='./error.html'">Edit</button></div></td></tr>
+              <tr><td><div class="proj-name">Atacama Gold</div><div class="proj-meta">🇨🇱 Gold — Atacama, Chile</div></td><td><span class="status-badge active">Active</span></td><td><div class="prog-cell"><div class="mini-bar"><div class="mini-fill g" style="width:92%"></div></div><span class="mini-pct">92%</span></div></td><td class="col-budget" style="font-size:11px;color:var(--white)">$218M</td><td class="col-actions"><div class="action-btns"><button class="act-btn" onclick="window.location.href='./error.html'">View</button><button class="act-btn" onclick="window.location.href='./error.html'">Edit</button></div></td></tr>
+              <tr><td><div class="proj-name">Zambia Copper Belt</div><div class="proj-meta">🇿🇲 Copper — Copperbelt</div></td><td><span class="status-badge pending">Pending</span></td><td><div class="prog-cell"><div class="mini-bar"><div class="mini-fill b" style="width:34%"></div></div><span class="mini-pct">34%</span></div></td><td class="col-budget" style="font-size:11px;color:var(--white)">$87M</td><td class="col-actions"><div class="action-btns"><button class="act-btn" onclick="window.location.href='./error.html'">View</button><button class="act-btn" onclick="window.location.href='./error.html'">Edit</button></div></td></tr>
+              <tr><td><div class="proj-name">Hunter Valley Coal</div><div class="proj-meta">🇦🇺 Coal — New South Wales</div></td><td><span class="status-badge review">Review</span></td><td><div class="prog-cell"><div class="mini-bar"><div class="mini-fill" style="width:55%"></div></div><span class="mini-pct">55%</span></div></td><td class="col-budget" style="font-size:11px;color:var(--white)">$63M</td><td class="col-actions"><div class="action-btns"><button class="act-btn" onclick="window.location.href='./error.html'">View</button><button class="act-btn" onclick="window.location.href='./error.html'">Edit</button></div></td></tr>
+              <tr><td><div class="proj-name">Obuasi Deep Mine</div><div class="proj-meta">🇬🇭 Gold — Ashanti, Ghana</div></td><td><span class="status-badge critical">Critical</span></td><td><div class="prog-cell"><div class="mini-bar"><div class="mini-fill" style="width:61%"></div></div><span class="mini-pct">61%</span></div></td><td class="col-budget" style="font-size:11px;color:var(--white)">$174M</td><td class="col-actions"><div class="action-btns"><button class="act-btn" onclick="window.location.href='./error.html'">View</button><button class="act-btn danger" onclick="window.location.href='./error.html'">Flag</button></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Revenue by Region</div><a href="./error.html" class="card-action">Map →</a></div>
+        <div class="region-list">
+          <div class="region-item"><span class="region-flag">🇦🇺</span><div class="region-info"><div class="region-name">Australia</div><div class="region-detail">4 projects · Iron, Coal</div></div><div class="region-bar-wrap"><div class="region-bar" style="width:0%" data-w="82%"></div></div><span class="region-val">$348M</span></div>
+          <div class="region-item"><span class="region-flag">🇿🇦</span><div class="region-info"><div class="region-name">South Africa</div><div class="region-detail">2 projects · Gold, Platinum</div></div><div class="region-bar-wrap"><div class="region-bar" style="width:0%" data-w="61%"></div></div><span class="region-val">$192M</span></div>
+          <div class="region-item"><span class="region-flag">🇨🇱</span><div class="region-info"><div class="region-name">Chile</div><div class="region-detail">2 projects · Gold, Copper</div></div><div class="region-bar-wrap"><div class="region-bar" style="width:0%" data-w="52%"></div></div><span class="region-val">$134M</span></div>
+          <div class="region-item"><span class="region-flag">🇿🇲</span><div class="region-info"><div class="region-name">Zambia</div><div class="region-detail">1 project · Copper</div></div><div class="region-bar-wrap"><div class="region-bar" style="width:0%" data-w="31%"></div></div><span class="region-val">$87M</span></div>
+          <div class="region-item"><span class="region-flag">🇬🇭</span><div class="region-info"><div class="region-name">Ghana</div><div class="region-detail">1 project · Gold</div></div><div class="region-bar-wrap"><div class="region-bar" style="width:0%" data-w="28%"></div></div><span class="region-val">$54M</span></div>
+          <div class="region-item"><span class="region-flag">🌍</span><div class="region-info"><div class="region-name">Other Regions</div><div class="region-detail">2 projects · Various</div></div><div class="region-bar-wrap"><div class="region-bar" style="width:0%" data-w="16%"></div></div><span class="region-val">$32M</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINANCIALS + EQUIPMENT -->
+    <div class="grid-2-eq">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Financial Summary — June 2026</div><a href="./error.html" class="card-action">Full P&amp;L →</a></div>
+        <div class="fin-row"><span class="fin-label">Total Revenue (YTD)</span><span class="fin-val">$847.3M</span></div>
+        <div class="fin-row"><span class="fin-label">Operating Costs</span><span class="fin-val dn">−$557.2M</span></div>
+        <div class="fin-row"><span class="fin-label">Gross Profit</span><span class="fin-val up">$290.1M</span></div>
+        <div class="fin-row"><span class="fin-label">EBITDA</span><span class="fin-val up">$244.8M (28.9%)</span></div>
+        <div class="fin-row"><span class="fin-label">Capex Spent</span><span class="fin-val dn">−$96.4M</span></div>
+        <div class="fin-row"><span class="fin-label">Net Cash Position</span><span class="fin-val up">$148.4M</span></div>
+        <div class="fin-row"><span class="fin-label">Outstanding Receivables</span><span class="fin-val" style="color:var(--orange)">$28.7M</span></div>
+        <div class="fin-row"><span class="fin-label">Forecast EOY Revenue</span><span class="fin-val up">$1.12B</span></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Equipment Status</div><a href="./error.html" class="card-action">All Assets →</a></div>
+        <div class="equip-list">
+          <div class="equip-item"><span class="equip-id">EX-01</span><span class="equip-name">Caterpillar 6060 Excavator</span><div class="equip-bar-wrap"><div class="equip-bar" style="width:0%;background:var(--green)" data-w="92%"></div></div><span class="equip-util" style="color:var(--green)">92%</span><span class="equip-status" style="background:rgba(76,175,130,.1);color:var(--green);border:1px solid rgba(76,175,130,.2)">Active</span></div>
+          <div class="equip-item"><span class="equip-id">DT-07</span><span class="equip-name">Komatsu 960E-2 Haul Truck</span><div class="equip-bar-wrap"><div class="equip-bar" style="width:0%;background:var(--orange)" data-w="74%"></div></div><span class="equip-util" style="color:var(--orange)">74%</span><span class="equip-status" style="background:rgba(255,152,0,.1);color:var(--orange);border:1px solid rgba(255,152,0,.2)">Maint.</span></div>
+          <div class="equip-item"><span class="equip-id">DR-03</span><span class="equip-name">Atlas Copco D65 Blast Drill</span><div class="equip-bar-wrap"><div class="equip-bar" style="width:0%;background:var(--green)" data-w="95%"></div></div><span class="equip-util" style="color:var(--green)">95%</span><span class="equip-status" style="background:rgba(76,175,130,.1);color:var(--green);border:1px solid rgba(76,175,130,.2)">Active</span></div>
+          <div class="equip-item"><span class="equip-id">CR-02</span><span class="equip-name">Terex RH400 Rope Shovel</span><div class="equip-bar-wrap"><div class="equip-bar" style="width:0%;background:var(--blue)" data-w="81%"></div></div><span class="equip-util" style="color:var(--blue)">81%</span><span class="equip-status" style="background:rgba(74,158,219,.1);color:var(--blue);border:1px solid rgba(74,158,219,.2)">Active</span></div>
+          <div class="equip-item"><span class="equip-id">BL-01</span><span class="equip-name">Sandvik TH663 Underground LHD</span><div class="equip-bar-wrap"><div class="equip-bar" style="width:0%;background:var(--red)" data-w="45%"></div></div><span class="equip-util" style="color:var(--red)">45%</span><span class="equip-status" style="background:rgba(229,83,83,.1);color:var(--red);border:1px solid rgba(229,83,83,.2)">Offline</span></div>
+          <div class="equip-item"><span class="equip-id">CY-04</span><span class="equip-name">FL Smidth ATOX Vertical Mill</span><div class="equip-bar-wrap"><div class="equip-bar" style="width:0%;background:var(--green)" data-w="88%"></div></div><span class="equip-util" style="color:var(--green)">88%</span><span class="equip-status" style="background:rgba(76,175,130,.1);color:var(--green);border:1px solid rgba(76,175,130,.2)">Active</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEAM + INVOICES -->
+    <div class="grid-2-eq">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Team Members Online</div><a href="./error.html" class="card-action">Manage →</a></div>
+        <div class="team-grid">
+          <div class="team-card"><div class="team-avatar" style="background:linear-gradient(135deg,#4A9EDB,#2d6a9f)">SB</div><div class="team-info"><div class="team-name">Sarah Blake</div><div class="team-role">Project Manager</div></div><span class="team-status online">Online</span></div>
+          <div class="team-card"><div class="team-avatar" style="background:linear-gradient(135deg,#4CAF82,#2d7a56)">MT</div><div class="team-info"><div class="team-name">Mark Thornton</div><div class="team-role">Site Engineer</div></div><span class="team-status online">Online</span></div>
+          <div class="team-card"><div class="team-avatar" style="background:linear-gradient(135deg,#E55353,#9a2929)">AL</div><div class="team-info"><div class="team-name">Aisha Levi</div><div class="team-role">Geologist</div></div><span class="team-status away">Away</span></div>
+          <div class="team-card"><div class="team-avatar" style="background:linear-gradient(135deg,#FF9800,#b56c00)">RP</div><div class="team-info"><div class="team-name">Robert Pham</div><div class="team-role">HSE Officer</div></div><span class="team-status online">Online</span></div>
+          <div class="team-card"><div class="team-avatar" style="background:linear-gradient(135deg,var(--purple),#6b21a8)">CN</div><div class="team-info"><div class="team-name">Clara Nakamura</div><div class="team-role">Financial Analyst</div></div><span class="team-status offline">Offline</span></div>
+          <div class="team-card"><div class="team-avatar" style="background:linear-gradient(135deg,var(--gold),#8B6010)">KM</div><div class="team-info"><div class="team-name">Kwame Mensah</div><div class="team-role">Operations Lead</div></div><span class="team-status online">Online</span></div>
+          <div class="team-card"><div class="team-avatar" style="background:linear-gradient(135deg,#7BC4F0,#2d7ab5)">TA</div><div class="team-info"><div class="team-name">Thomas Acheampong</div><div class="team-role">Site Supervisor</div></div><span class="team-status online">Online</span></div>
+          <div class="team-card"><div class="team-avatar" style="background:linear-gradient(135deg,#72E0AA,#1e7a4a)">PL</div><div class="team-info"><div class="team-name">Priya Lakshmanan</div><div class="team-role">Environmental Mgr</div></div><span class="team-status away">Away</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Recent Invoices</div><a href="./error.html" class="card-action">All Invoices →</a></div>
+        <div class="table-scroll">
+          <table class="invoice-table">
+            <thead><tr><th>Invoice</th><th>Project</th><th>Amount</th><th>Due</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td><span class="inv-id">INV-1054</span></td><td style="color:var(--gray)">Atacama Gold</td><td style="font-weight:600;color:var(--white)">$4.2M</td><td style="color:var(--gray)">28 Jun</td><td><span class="pay-status pending">Pending</span></td></tr>
+              <tr><td><span class="inv-id">INV-1053</span></td><td style="color:var(--gray)">Pilbara Ph III</td><td style="font-weight:600;color:var(--white)">$7.8M</td><td style="color:var(--red)">22 Jun</td><td><span class="pay-status overdue">Overdue</span></td></tr>
+              <tr><td><span class="inv-id">INV-1052</span></td><td style="color:var(--gray)">Hunter Valley</td><td style="font-weight:600;color:var(--white)">$2.1M</td><td style="color:var(--gray)">15 Jun</td><td><span class="pay-status paid">Paid</span></td></tr>
+              <tr><td><span class="inv-id">INV-1051</span></td><td style="color:var(--gray)">Zambia Cu Belt</td><td style="font-weight:600;color:var(--white)">$3.2M</td><td style="color:var(--gray)">10 Jun</td><td><span class="pay-status paid">Paid</span></td></tr>
+              <tr><td><span class="inv-id">INV-1050</span></td><td style="color:var(--gray)">Obuasi Mine</td><td style="font-weight:600;color:var(--white)">$5.6M</td><td style="color:var(--red)">18 Jun</td><td><span class="pay-status overdue">Overdue</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+</main>
+</div><!-- /shell -->
+
+<script>
+/* ══ SESSION GUARD ══ */
+(function(){
+  let s = null;
+  try{const h=window.location.hash;if(h.startsWith('#s=')){const dec=decodeURIComponent(escape(atob(h.slice(3))));s=JSON.parse(dec);try{localStorage.setItem('stk_session',JSON.stringify(s));}catch(e){}try{sessionStorage.setItem('stk_session',JSON.stringify(s));}catch(e){}history.replaceState(null,'',window.location.pathname);}}catch(e){}
+  if(!s){try{const r=localStorage.getItem('stk_session');if(r)s=JSON.parse(r);}catch(e){}}
+  if(!s){try{const r=sessionStorage.getItem('stk_session');if(r)s=JSON.parse(r);}catch(e){}}
+  if(!s){try{const m=document.cookie.match(/stk_session=([^;]+)/);if(m)s=JSON.parse(decodeURIComponent(m[1]));}catch(e){}}
+  if(!s||!s.loggedIn||s.role!=='admin'){
+    if(window.self===window.top){window.location.href='login.html';return;}
+    s={loggedIn:true,role:'admin',name:'Admin User',avatar:'AU',title:'Super Admin',firstName:'Admin',email:'admin@stackly.com'};
+  }
+  document.getElementById('sb-avatar').textContent = s.avatar||'AU';
+  document.getElementById('sb-name').textContent   = s.name||'Administrator';
+  document.getElementById('sb-title').textContent  = s.title||'Super Admin';
+  document.getElementById('sb-email').textContent  = s.email||'';
+  document.getElementById('tb-avatar').textContent = s.avatar||'AU';
+  const now = new Date();
+  document.getElementById('topbar-date').textContent =
+    now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}) +
+    ' — Welcome back, '+(s.firstName||s.name.split(' ')[0]);
+})();
+
+function adminSignOut(){
+  try{localStorage.removeItem('stk_session');}catch(e){}
+  try{sessionStorage.removeItem('stk_session');}catch(e){}
+  try{document.cookie='stk_session=;path=/;max-age=0';}catch(e){}
+  window.location.href='login.html';
+}
+
+/* ══ KPI COUNTERS ══ */
+function countUp(id,end,prefix,suffix){
+  prefix=prefix||''; suffix=suffix||'';
+  const el=document.getElementById(id);
+  let o={v:0};
+  gsap.to(o,{v:end,duration:1.9,ease:'power2.out',onUpdate:function(){
+    el.textContent=prefix+Math.round(o.v)+suffix;
+  }});
+}
+setTimeout(function(){
+  countUp('kpi1',12);
+  countUp('kpi2',847,'$','M');
+  countUp('kpi3',487);
+  countUp('kpi4',142,'','K');
+  countUp('kpi5',98,'','%');
+},400);
+
+/* ══ REVENUE CHART ══ */
+var revData=[{m:'Jan',v:68},{m:'Feb',v:72},{m:'Mar',v:84},{m:'Apr',v:79},{m:'May',v:91},{m:'Jun',v:88},{m:'Jul',v:95},{m:'Aug',v:102},{m:'Sep',v:98},{m:'Oct',v:107},{m:'Nov',v:115},{m:'Dec',v:124}];
+var revMax=Math.max.apply(null,revData.map(function(d){return d.v;}));
+var rc=document.getElementById('rev-chart');
+revData.forEach(function(d,i){
+  var w=document.createElement('div');w.className='rev-bar-wrap';
+  var b=document.createElement('div');b.className='rev-bar '+(i>=6?'dimmed':'gold-bar');
+  b.style.height='3px';b.title='$'+d.v+'M';
+  var l=document.createElement('div');l.className='rev-bar-label';l.textContent=d.m;
+  w.appendChild(b);w.appendChild(l);rc.appendChild(w);
+  setTimeout(function(){b.style.height=((d.v/revMax)*100)+'%';},500+i*55);
+});
+
+/* ══ BAR CHARTS ══ */
+function makeBar(id,data,cls){
+  var el=document.getElementById(id);
+  var max=Math.max.apply(null,data.map(function(d){return d.v;}));
+  data.forEach(function(d){
+    var w=document.createElement('div');w.className='bar-wrap';
+    var b=document.createElement('div');b.className='bar '+cls;b.style.height='3px';b.title=d.l+': '+d.v;
+    var l=document.createElement('div');l.className='bar-label';l.textContent=d.l;
+    w.appendChild(b);w.appendChild(l);el.appendChild(w);
+    setTimeout(function(){b.style.height=((d.v/max)*88)+'%';},700);
+  });
+}
+makeBar('bar-commodity',[{l:'Iron',v:284},{l:'Gold',v:142},{l:'Cu',v:98},{l:'Coal',v:76},{l:'Ni',v:45},{l:'Zn',v:31}],'gold');
+makeBar('bar-equip',[{l:'EX-01',v:92},{l:'DR-03',v:95},{l:'DT-07',v:74},{l:'CR-02',v:81},{l:'CY-04',v:88},{l:'BL-01',v:45}],'blue');
+makeBar('bar-safety',[{l:'Jan',v:3},{l:'Feb',v:2},{l:'Mar',v:1},{l:'Apr',v:4},{l:'May',v:2},{l:'Jun',v:1}],'green');
+
+/* ══ DONUT ══ */
+setTimeout(function(){
+  var circ=289;
+  [{id:'donut1',pct:.42,off:0},{id:'donut2',pct:.33,off:.42},{id:'donut3',pct:.17,off:.75},{id:'donut4',pct:.08,off:.92}]
+  .forEach(function(s,i){
+    var el=document.getElementById(s.id);
+    el.style.strokeDasharray=(circ*s.pct)+' '+(circ*(1-s.pct));
+    el.style.transition='stroke-dashoffset 1.4s ease '+(i*.2)+'s';
+    el.style.strokeDashoffset=-(circ*s.off);
+  });
+  document.querySelectorAll('.donut-pct-fill').forEach(function(el){
+    setTimeout(function(){el.style.width=el.dataset.w;},600);
+  });
+},500);
+
+/* ══ ANIMATED BARS ══ */
+setTimeout(function(){
+  document.querySelectorAll('.region-bar[data-w]').forEach(function(el){el.style.width=el.dataset.w;});
+  document.querySelectorAll('.equip-bar[data-w]').forEach(function(el){el.style.width=el.dataset.w;});
+},700);
+
+/* ══ ALERTS ══ */
+function dismissAlert(btn){
+  var item=btn.closest('.alert-item');
+  gsap.to(item,{opacity:0,height:0,padding:0,marginBottom:0,duration:.3,onComplete:function(){item.remove();}});
+}
+function clearAllAlerts(){
+  document.querySelectorAll('.alert-item').forEach(function(item){
+    gsap.to(item,{opacity:0,height:0,padding:0,marginBottom:0,duration:.25,onComplete:function(){item.remove();}});
+  });
+}
+
+/* ══ SIDEBAR ══ */
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+  document.body.style.overflow='';
+}
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.contains('open') ? closeSidebar() : openSidebar();
+}
+document.getElementById('overlay').addEventListener('pointerdown',function(e){
+  e.preventDefault(); closeSidebar();
+},{passive:false});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSidebar();});
+(function(){
+  var sx=0,sy=0;
+  var sb=document.getElementById('sidebar');
+  sb.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+  sb.addEventListener('touchend',function(e){
+    if(e.changedTouches[0].clientX-sx<-50&&Math.abs(e.changedTouches[0].clientY-sy)<40)closeSidebar();
+  },{passive:true});
+})();
+document.querySelectorAll('.sidebar-link').forEach(function(l){
+  l.addEventListener('click',function(){
+    document.querySelectorAll('.sidebar-link').forEach(function(x){x.classList.remove('active');});
+    l.classList.add('active');
+    if(window.innerWidth<=900)setTimeout(closeSidebar,120);
+  });
+});
+
+/* ══ ENTRANCE ANIMATIONS ══ */
+gsap.fromTo('.topbar',{opacity:0,y:-14},{opacity:1,y:0,duration:.5,ease:'power3.out'});
+gsap.fromTo('.kpi-card',{opacity:0,y:20},{opacity:1,y:0,duration:.5,ease:'power3.out',stagger:.07,delay:.2});
+gsap.fromTo('.qa-btn',{opacity:0,scale:.9},{opacity:1,scale:1,duration:.4,ease:'back.out(1.7)',stagger:.05,delay:.1});
+gsap.fromTo('.card',{opacity:0,y:28},{opacity:1,y:0,duration:.6,ease:'power3.out',stagger:.07,delay:.4});
+</script>
+</body>
+</html>

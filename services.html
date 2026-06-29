@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Services — STACKLY Mining & Industry</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Montserrat:wght@300;400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+:root{--gold:#D4A017;--gold-light:#F5C842;--dark:#0A0A0A;--dark-2:#111111;--dark-3:#1A1A1A;--white:#F0EDE8;--gray:#888;--font-display:'Playfair Display',serif;--font-heading:'Montserrat',sans-serif;--font-body:'Rajdhani',sans-serif;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;overflow-x:hidden;width:100%;max-width:100vw;}
+body{background:var(--dark);color:var(--white);font-family:var(--font-body);overflow-x:hidden;width:100%;max-width:100vw;}
+::selection{background:var(--gold);color:var(--dark);}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--dark);}::-webkit-scrollbar-thumb{background:var(--gold);}
+
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.25;max-width:100vw;}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;width:100%;z-index:1000;
+  padding:0 40px;display:flex;align-items:center;justify-content:space-between;
+  height:80px;background:rgba(10,10,10,0.85);
+  backdrop-filter:blur(20px);border-bottom:1px solid rgba(212,160,23,0.15);
+  transition:all 0.4s ease;
+}
+nav.scrolled{height:60px;background:rgba(10,10,10,0.97);}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0;}
+.nav-logo-img{height:44px;max-width:180px;width:auto;filter:brightness(1.1);}
+.nav-links{display:flex;align-items:center;gap:2px;}
+.nav-links a{
+  color:var(--white);text-decoration:none;font-family:var(--font-heading);
+  font-size:0.72rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;
+  padding:8px 10px;border-radius:4px;transition:all 0.3s ease;position:relative;overflow:hidden;
+  white-space:nowrap;
+}
+.nav-links a::before{content:'';position:absolute;bottom:0;left:0;width:0;height:1px;background:var(--gold);transition:width 0.3s ease;}
+.nav-links a:hover{color:var(--gold);}
+.nav-links a:hover::before,.nav-links a.active::before{width:100%;}
+.nav-links a.active{color:var(--gold);}
+.nav-cta{background:var(--gold);color:var(--dark)!important;font-weight:700!important;padding:9px 18px!important;border-radius:4px;}
+.nav-cta:hover{background:var(--gold-light)!important;transform:translateY(-1px);}
+.hamburger{
+  display:none;flex-direction:column;justify-content:center;align-items:center;
+  width:40px;height:40px;cursor:pointer;padding:4px;
+  position:relative;flex-shrink:0;z-index:1001;
+}
+.hamburger span{
+  display:block;width:26px;height:2px;background:var(--gold);border-radius:1px;
+  position:absolute;transition:transform 0.35s cubic-bezier(0.23,1,0.32,1),opacity 0.25s ease;transform-origin:center;
+}
+.hamburger span:nth-child(1){transform:translateY(-7px);}
+.hamburger span:nth-child(2){transform:translateY(0);}
+.hamburger span:nth-child(3){transform:translateY(7px);}
+.hamburger.is-open span:nth-child(1){transform:translateY(0) rotate(45deg);}
+.hamburger.is-open span:nth-child(2){opacity:0;transform:scaleX(0);}
+.hamburger.is-open span:nth-child(3){transform:translateY(0) rotate(-45deg);}
+.mobile-menu{
+  display:none;position:fixed;top:80px;left:0;width:100%;
+  background:rgba(10,10,10,0.98);backdrop-filter:blur(20px);
+  padding:30px;flex-direction:column;gap:8px;
+  border-bottom:1px solid rgba(212,160,23,0.2);z-index:999;
+}
+.mobile-menu.open{display:flex;}
+.mobile-menu a{
+  color:var(--white);text-decoration:none;font-family:var(--font-heading);
+  font-size:1rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;
+  padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.07);transition:color 0.3s;
+}
+.mobile-menu a:hover{color:var(--gold);}
+/* ── HERO ── */
+.page-hero{position:relative;overflow:hidden;z-index:1;padding:160px 40px 64px;}
+.page-hero-bg{position:absolute;inset:0;z-index:0;}
+.page-hero-bg img{width:100%;height:100%;object-fit:cover;opacity:0.3;}
+.page-hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,10,10,0.5) 0%,var(--dark) 100%);}
+.page-hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(212,160,23,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(212,160,23,0.05) 1px,transparent 1px);background-size:60px 60px;z-index:1;animation:gridShift 20s linear infinite;}
+@keyframes gridShift{0%{background-position:0 0}100%{background-position:60px 60px}}
+.page-hero-content{position:relative;z-index:2;text-align:center;}
+.page-hero-eyebrow{display:inline-block;font-size:0.7rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:16px;}
+.page-hero-title{font-family:var(--font-display);font-size:clamp(3.5rem,8vw,7rem);line-height:1;color:var(--white);letter-spacing:2px;}
+.page-hero-title .gold{color:var(--gold);}
+.breadcrumb{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:20px;font-size:0.75rem;color:var(--gray);letter-spacing:2px;}
+.breadcrumb a{color:var(--gold);text-decoration:none;}
+
+section{position:relative;z-index:1;}
+
+/* ── SECTION PAD + CENTERED INNER ── */
+.section-pad{padding:80px 0;}
+.section-inner{
+  width:100%;
+  max-width:1400px;
+  margin-left:auto;
+  margin-right:auto;
+  padding-left:60px;
+  padding-right:60px;
+}
+
+.section-header{text-align:center;margin-bottom:48px;}
+.section-eyebrow{display:inline-block;font-size:0.7rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:16px;}
+.section-title{font-family:var(--font-display);font-size:clamp(2.8rem,5vw,5rem);line-height:1;color:var(--white);letter-spacing:1px;}
+.section-title .gold{color:var(--gold);}
+.section-line{width:60px;height:2px;background:var(--gold);margin:24px auto 0;}
+
+/* ── SERVICE DETAIL ── */
+.service-detail{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;padding:56px 0;border-bottom:1px solid rgba(212,160,23,0.08);}
+.service-detail:last-child{border-bottom:none;padding-bottom:0;}
+.service-detail.reverse{direction:rtl;}
+.service-detail.reverse>*{direction:ltr;}
+.service-detail-img{position:relative;border-radius:4px;overflow:hidden;aspect-ratio:4/3;}
+.service-detail-img img{width:100%;height:100%;object-fit:cover;transition:transform 0.8s;}
+.service-detail-img:hover img{transform:scale(1.05);}
+.service-detail-img-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,10,10,0.6) 0%,transparent 60%);}
+.service-detail-eyebrow{display:inline-block;font-size:0.68rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+.service-detail-title{font-family:var(--font-display);font-size:clamp(2.5rem,4vw,4rem);line-height:1;margin-bottom:20px;}
+.service-detail-desc{color:#999;line-height:1.9;font-size:0.93rem;margin-bottom:24px;}
+.service-bullets{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:32px;}
+.service-bullets li{display:flex;align-items:flex-start;gap:12px;color:#bbb;font-size:0.88rem;line-height:1.6;}
+.service-bullets li::before{content:'◆';color:var(--gold);font-size:0.6rem;margin-top:4px;flex-shrink:0;}
+.service-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px;}
+.service-tag{background:rgba(212,160,23,0.1);border:1px solid rgba(212,160,23,0.25);color:var(--gold);padding:6px 16px;border-radius:20px;font-size:0.72rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;}
+.btn-primary{background:var(--gold);color:var(--dark);font-family:var(--font-heading);font-size:0.9rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:14px 36px;border:none;cursor:pointer;border-radius:3px;text-decoration:none;display:inline-block;transition:all 0.3s;}
+.btn-primary:hover{background:var(--gold-light);transform:translateY(-3px);box-shadow:0 15px 40px rgba(212,160,23,0.4);}
+.btn-outline{border:1px solid rgba(212,160,23,0.6);color:var(--white);font-family:var(--font-heading);font-size:0.9rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:14px 36px;background:transparent;cursor:pointer;border-radius:3px;text-decoration:none;display:inline-block;transition:all 0.3s;}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);background:rgba(212,160,23,0.08);transform:translateY(-3px);}
+
+/* ── CAPABILITIES ── */
+.capabilities-bg{background:var(--dark-3);}
+.cap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;width:100%;}
+.cap-card{background:var(--dark-2);padding:36px 28px;border-radius:4px;border:1px solid rgba(212,160,23,0.1);text-align:center;transition:all 0.4s;}
+.cap-card:hover{transform:translateY(-6px);border-color:rgba(212,160,23,0.4);}
+.cap-icon{font-size:2.4rem;margin-bottom:16px;display:block;}
+.cap-title{font-family:var(--font-heading);font-size:1rem;font-weight:700;letter-spacing:1px;margin-bottom:10px;}
+.cap-desc{color:#777;font-size:0.82rem;line-height:1.7;}
+
+/* ── EQUIPMENT ── */
+.equipment-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;width:100%;}
+.equip-card{background:var(--dark-3);border:1px solid rgba(212,160,23,0.1);border-radius:4px;overflow:hidden;transition:all 0.4s;}
+.equip-card:hover{border-color:rgba(212,160,23,0.4);transform:translateY(-4px);}
+.equip-img-wrap{width:100%;height:180px;overflow:hidden;background:var(--dark-2);}
+.equip-img{width:100%;height:100%;object-fit:cover;transition:transform 0.5s;display:block;}
+.equip-card:hover .equip-img{transform:scale(1.06);}
+.equip-body{padding:24px;}
+.equip-brand{font-size:0.65rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
+.equip-name{font-family:var(--font-heading);font-size:1.05rem;font-weight:700;margin-bottom:8px;}
+.equip-spec{color:#777;font-size:0.82rem;line-height:1.6;}
+
+/* ── CTA BAND ── */
+.cta-band{padding:100px 0;background:linear-gradient(135deg,var(--dark-3) 0%,#1A1208 100%);text-align:center;position:relative;overflow:hidden;border-top:1px solid rgba(212,160,23,0.15);border-bottom:1px solid rgba(212,160,23,0.15);}
+.cta-band-inner{max-width:1400px;margin:0 auto;padding:0 60px;}
+.cta-title{font-family:var(--font-display);font-size:clamp(3rem,6vw,6rem);margin-bottom:20px;position:relative;z-index:1;}
+.cta-text{color:#888;font-size:1.1rem;margin-bottom:44px;position:relative;z-index:1;}
+
+/* ── GALLERY STRIP ── */
+.gallery-strip{display:grid;grid-template-columns:repeat(3,1fr);height:240px;overflow:hidden;margin:0;width:100%;}
+.gallery-tile{position:relative;cursor:pointer;overflow:hidden;background-size:cover;background-position:center;filter:brightness(0.6);transition:filter 0.4s;}
+.gallery-tile:hover{filter:brightness(1);}
+.gallery-tile::before{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.82) 0%,transparent 55%);z-index:1;}
+.gallery-caption{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:18px;font-family:var(--font-heading);font-size:0.78rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--white);}
+.gallery-desc{position:absolute;inset:0;z-index:3;background:rgba(10,10,10,0.94);padding:24px;display:flex;align-items:center;font-family:var(--font-body);font-size:0.85rem;line-height:1.7;color:#ccc;opacity:0;pointer-events:none;transition:opacity 0.35s;}
+.gallery-tile.open .gallery-desc{opacity:1;pointer-events:auto;}
+
+/* ── FOOTER ── */
+footer{background:var(--dark-2);padding:80px 0 30px;border-top:1px solid rgba(212,160,23,0.1);}
+.footer-inner{max-width:1400px;margin:0 auto;padding:0 60px;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:60px;margin-bottom:60px;}
+.footer-logo{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.footer-logo-img{height:40px;width:auto;}
+.footer-desc{color:#666;font-size:0.88rem;line-height:1.8;margin-bottom:28px;}
+.footer-socials{display:flex;gap:10px;}
+.social-btn{width:40px;height:40px;border:1px solid rgba(212,160,23,0.3);border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--gray);font-size:0.9rem;text-decoration:none;transition:all 0.3s;}
+.social-btn:hover{background:var(--gold);color:var(--dark);border-color:var(--gold);transform:translateY(-3px);}
+.footer-heading{font-family:var(--font-heading);font-size:0.85rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:24px;}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.footer-links a{color:#666;text-decoration:none;font-size:0.88rem;transition:color 0.3s;}
+.footer-static{color:#666;font-size:0.88rem;display:inline-block;}
+.footer-links a:hover{color:var(--gold);}
+.footer-bottom{display:flex;align-items:center;justify-content:space-between;padding-top:30px;border-top:1px solid rgba(255,255,255,0.05);}
+.footer-copy{color:#555;font-size:0.8rem;}
+.footer-bottom-links{display:flex;gap:24px;}
+.footer-bottom-links a{color:#555;font-size:0.8rem;text-decoration:none;transition:color 0.3s;}
+.footer-bottom-links a:hover{color:var(--gold);}
+
+/* ── REVEAL ── */
+.reveal{opacity:0;transform:translateY(50px);}
+.reveal-left{opacity:0;transform:translateX(-60px);}
+.reveal-right{opacity:0;transform:translateX(60px);}
+.reveal-scale{opacity:0;transform:scale(0.85);}
+
+/* ════════════════════════
+   RESPONSIVE
+   ════════════════════════ */
+
+/* 1200px */
+@media(max-width:1200px){
+  nav{padding:0 30px;}
+  .nav-links{gap:0px;}
+  .nav-links a{padding:8px 8px;font-size:0.68rem;letter-spacing:0.8px;}
+  .nav-cta{padding:8px 14px!important;}
+  .section-inner,.footer-inner,.cta-band-inner{padding-left:40px;padding-right:40px;}
+  .cap-grid{grid-template-columns:repeat(2,1fr);}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:36px;}
+}
+
+/* 1024px — hamburger kicks in HERE */
+@media(max-width:1023px){
+  nav{padding:0 24px;}
+  .nav-links{display:none;}
+  .hamburger{display:flex;}
+  .mobile-menu{top:80px;}
+  .section-pad{padding:60px 0;}
+  .section-inner,.footer-inner,.cta-band-inner{padding-left:30px;padding-right:30px;}
+  .service-detail{grid-template-columns:1fr;gap:32px;}
+  .service-detail.reverse{direction:ltr;}
+  .equipment-grid{grid-template-columns:repeat(2,1fr);}
+  .gallery-strip{grid-template-columns:1fr;height:auto;}
+  .gallery-tile{height:200px;}
+}
+
+/* 768px */
+@media(max-width:768px){
+  nav{padding:0 20px;}
+  .nav-logo-img{height:36px;max-width:140px;}
+  .mobile-menu{top:80px;padding:24px 20px;}
+  .section-pad{padding:50px 0;}
+  .section-inner,.footer-inner,.cta-band-inner{padding-left:20px;padding-right:20px;}
+  .page-hero{padding:130px 24px 48px;}
+  .page-hero-title{font-size:clamp(2.8rem,11vw,5rem);}
+  .section-title{font-size:clamp(2rem,8vw,3.2rem);}
+  .service-detail-title{font-size:clamp(1.8rem,7vw,2.8rem);}
+  .service-detail{padding:40px 0;}
+  .cap-grid{grid-template-columns:repeat(2,1fr);}
+  .equipment-grid{grid-template-columns:1fr;}
+  .cta-band{padding:70px 0;}
+  .cta-title{font-size:clamp(2.2rem,8vw,3.5rem);}
+  .footer-grid{grid-template-columns:1fr;gap:36px;}
+  footer{padding:60px 0 24px;}
+  .footer-bottom{flex-direction:column;gap:12px;text-align:center;}
+  .footer-bottom-links{justify-content:center;}
+}
+
+/* 480px */
+@media(max-width:480px){
+  nav{padding:0 16px;}
+  .nav-logo-img{height:32px;max-width:118px;}
+  .page-hero{padding:120px 16px 40px;}
+  .page-hero-title{font-size:clamp(2.2rem,12vw,3.5rem);}
+  .section-title{font-size:clamp(1.8rem,9vw,2.6rem);}
+  .cap-grid{grid-template-columns:1fr;}
+  .service-tags{gap:6px;}
+  .service-tag{padding:4px 10px;font-size:0.65rem;}
+  .btn-primary,.btn-outline{width:100%;max-width:300px;text-align:center;display:block;}
+  .footer-bottom-links{flex-direction:column;gap:8px;align-items:center;}
+  .social-btn{width:36px;height:36px;}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important;animation-iteration-count:1!important;}
+}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+
+<nav id="navbar">
+  <a href="index.html" class="nav-logo">
+    <img src="./assets/stackly-removebg-preview.webp" alt="STACKLY" class="nav-logo-img">
+  </a>
+  <div class="nav-links">
+    <a href="index.html" >Home</a>
+    <a href="./about.html">About</a>
+    <a href="./services.html" class="active">Services</a>
+    <a href="./projects.html">Projects</a>
+    <a href="./blog.html">Blog</a>
+    <a href="./contact.html">Contact</a>
+    <a href="./login.html" class="nav-cta">Login</a>
+  </div>
+  <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Home</a>
+  <a href="./about.html">About</a>
+  <a href="./services.html">Services</a>
+  <a href="./projects.html">Projects</a>
+  <a href="blog.html">Blog</a>
+  <a href="./contact.html">Contact</a>
+  <a href="login.html">Login</a>
+</div>
+
+<!-- HERO -->
+<section class="page-hero">
+  <div class="page-hero-bg"><img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=1600&q=90" alt="Services"></div>
+  <div class="page-hero-grid"></div>
+  <div class="page-hero-content">
+    <div class="page-hero-eyebrow" id="ph-eyebrow">Full-Lifecycle Mining Solutions</div>
+    <h1 class="page-hero-title" id="ph-title">OUR <span class="gold">SERVICES</span></h1>
+    <div class="breadcrumb"><a href="index.html">Home</a> / <span>Services</span></div>
+  </div>
+</section>
+
+<!-- SERVICE DETAILS -->
+<section class="section-pad">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-eyebrow reveal">What We Offer</span>
+      <h2 class="section-title reveal">Comprehensive <span class="gold">Mining Solutions</span></h2>
+      <div class="section-line reveal"></div>
+    </div>
+
+    <div class="service-detail">
+      <div class="service-detail-img reveal-left">
+        <img src="https://images.unsplash.com/photo-1523848309072-c199db53f137?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Surface Mining">
+        <div class="service-detail-img-overlay"></div>
+      </div>
+      <div class="reveal-right">
+        <span class="service-detail-eyebrow">Open-Pit Operations</span>
+        <h2 class="service-detail-title">Surface Mining</h2>
+        <p class="service-detail-desc">Our surface mining division operates some of the world's largest open-pit and strip-mining complexes. We deploy the latest Komatsu and Caterpillar autonomous fleets, precision GPS-guided drill rigs, and AI-optimised blast designs to maximise ore recovery while minimising dilution and environmental disturbance.</p>
+        <ul class="service-bullets">
+          <li>Open-pit mine design and pushback sequencing</li>
+          <li>Precision blasting with AI-optimised fragmentation models</li>
+          <li>Autonomous and semi-autonomous haulage systems</li>
+          <li>Slope stability monitoring with real-time InSAR radar</li>
+          <li>Waste rock management and tailings storage facilities</li>
+          <li>Continuous benchmarking against global productivity standards</li>
+        </ul>
+        <div class="service-tags"><span class="service-tag">Iron Ore</span><span class="service-tag">Coal</span><span class="service-tag">Copper</span><span class="service-tag">Bauxite</span><span class="service-tag">Gold</span></div>
+        <a href="error.html" class="btn-primary">Get a Quote →</a>
+      </div>
+    </div>
+
+    <div class="service-detail reverse">
+      <div class="service-detail-img reveal-right">
+        <img src="https://images.unsplash.com/photo-1571223641822-b82408a0e705?q=80&w=1702&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Underground Mining">
+        <div class="service-detail-img-overlay"></div>
+      </div>
+      <div class="reveal-left">
+        <span class="service-detail-eyebrow">Shaft &amp; Tunnel Operations</span>
+        <h2 class="service-detail-title">Underground Mining</h2>
+        <p class="service-detail-desc">STACKLY's underground division operates deep shaft and tunnel mines from 200m to 3,200m depth. Our technically sophisticated teams deploy sub-level caving, block caving, and cut-and-fill stoping methods, supported by state-of-the-art ventilation, ground support, and refuge systems.</p>
+        <ul class="service-bullets">
+          <li>Shaft sinking and tunnel boring machine operations</li>
+          <li>Sub-level caving and block cave management</li>
+          <li>Automated battery-electric underground fleets</li>
+          <li>Real-time seismic monitoring and ground control</li>
+          <li>Underground ore sorting and pre-concentration</li>
+          <li>Refuge chamber installation and emergency response systems</li>
+        </ul>
+        <div class="service-tags"><span class="service-tag">Gold</span><span class="service-tag">Copper</span><span class="service-tag">Nickel</span><span class="service-tag">Platinum</span><span class="service-tag">Zinc</span></div>
+        <a href="error.html" class="btn-primary">Get a Quote →</a>
+      </div>
+    </div>
+
+    <div class="service-detail">
+      <div class="service-detail-img reveal-left">
+        <img src="https://images.unsplash.com/photo-1565008447742-97f6f38c985c?w=900&q=90" alt="Mineral Processing">
+        <div class="service-detail-img-overlay"></div>
+      </div>
+      <div class="reveal-right">
+        <span class="service-detail-eyebrow">Comminution to Smelting</span>
+        <h2 class="service-detail-title">Mineral Processing</h2>
+        <p class="service-detail-desc">Our processing plants transform run-of-mine ore into high-grade mineral concentrates, applying the full suite of comminution, concentration, hydrometallurgical, and pyrometallurgical processes. We operate 14 processing plants globally with a combined annual throughput of 280 million tonnes.</p>
+        <ul class="service-bullets">
+          <li>Primary, secondary, and tertiary crushing circuits</li>
+          <li>SAG and ball mill grinding with AI-controlled load optimisation</li>
+          <li>Froth flotation for sulphide and oxide ore streams</li>
+          <li>Carbon-in-leach and carbon-in-pulp gold recovery circuits</li>
+          <li>Heap leach and SX-EW copper extraction</li>
+          <li>Tailings management and water recycling systems</li>
+        </ul>
+        <div class="service-tags"><span class="service-tag">Crushing</span><span class="service-tag">Flotation</span><span class="service-tag">Leaching</span><span class="service-tag">Smelting</span></div>
+        <a href="error.html" class="btn-primary">Get a Quote →</a>
+      </div>
+    </div>
+
+    <div class="service-detail reverse">
+      <div class="service-detail-img reveal-right">
+        <img src="https://images.unsplash.com/photo-1654643353084-10e62e05b9bf?q=80&w=1631&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Geological Survey">
+        <div class="service-detail-img-overlay"></div>
+      </div>
+      <div class="reveal-left">
+        <span class="service-detail-eyebrow">Exploration &amp; Modelling</span>
+        <h2 class="service-detail-title">Geological Surveys</h2>
+        <p class="service-detail-desc">Our geological services division provides world-class exploration, resource estimation, and mine geology services. We integrate airborne geophysics, LiDAR, drone surveying, and AI-driven 3D modelling to accurately characterise and quantify mineral resources from early-stage exploration through to bankable feasibility study.</p>
+        <ul class="service-bullets">
+          <li>Airborne magnetic, gravity, and electromagnetic surveys</li>
+          <li>RC and diamond core drilling programmes</li>
+          <li>JORC/NI 43-101 resource estimation and classification</li>
+          <li>3D ore body modelling with implicit surface techniques</li>
+          <li>Geometallurgical characterisation and hardness mapping</li>
+          <li>Geostatistical analysis and grade simulation</li>
+        </ul>
+        <div class="service-tags"><span class="service-tag">LiDAR</span><span class="service-tag">Geophysics</span><span class="service-tag">Drilling</span><span class="service-tag">JORC</span></div>
+        <a href="error.html" class="btn-primary">Get a Quote →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CAPABILITIES -->
+<section class="section-pad capabilities-bg">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-eyebrow reveal">Technical Edge</span>
+      <h2 class="section-title reveal">Our <span class="gold">Capabilities</span></h2>
+      <div class="section-line reveal"></div>
+    </div>
+    <div class="cap-grid">
+      <div class="cap-card reveal-scale"><span class="cap-icon">🤖</span><h3 class="cap-title">Mine Automation</h3><p class="cap-desc">Fully autonomous haulage, drilling, and blasting systems. Real-time fleet management and predictive maintenance AI.</p></div>
+      <div class="cap-card reveal-scale"><span class="cap-icon">📡</span><h3 class="cap-title">Remote Operations</h3><p class="cap-desc">Global remote operations centre managing 28 mines simultaneously from our Sydney Digital Mining Hub.</p></div>
+      <div class="cap-card reveal-scale"><span class="cap-icon">🌿</span><h3 class="cap-title">Green Mining</h3><p class="cap-desc">Solar-powered plants, electric fleets, water-neutral operations, and certified carbon-offset programs.</p></div>
+      <div class="cap-card reveal-scale"><span class="cap-icon">🔒</span><h3 class="cap-title">Safety Systems</h3><p class="cap-desc">IoT wearables, collision avoidance radar, AI fatigue detection, and real-time gas monitoring networks.</p></div>
+      <div class="cap-card reveal-scale"><span class="cap-icon">💧</span><h3 class="cap-title">Water Management</h3><p class="cap-desc">Closed-loop water systems, dewatering programmes, and acid rock drainage treatment across all sites.</p></div>
+      <div class="cap-card reveal-scale"><span class="cap-icon">📊</span><h3 class="cap-title">Data &amp; Analytics</h3><p class="cap-desc">Mine-wide sensor networks feeding real-time dashboards, AI optimisation, and predictive planning systems.</p></div>
+      <div class="cap-card reveal-scale"><span class="cap-icon">🏗️</span><h3 class="cap-title">EPCM Services</h3><p class="cap-desc">End-to-end Engineering, Procurement, Construction, and Management for greenfield and brownfield projects.</p></div>
+      <div class="cap-card reveal-scale"><span class="cap-icon">🌍</span><h3 class="cap-title">Community Programs</h3><p class="cap-desc">Social impact investment, indigenous employment, local procurement, and infrastructure development programs.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- EQUIPMENT -->
+<section class="section-pad">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-eyebrow reveal">Our Fleet</span>
+      <h2 class="section-title reveal">World-Class <span class="gold">Equipment</span></h2>
+      <div class="section-line reveal"></div>
+    </div>
+    <div class="equipment-grid">
+      <div class="equip-card reveal"><div class="equip-img-wrap"><img src="https://images.unsplash.com/photo-1622645636770-11fbf0611463?q=80&w=1173&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Haul Trucks" class="equip-img"></div><div class="equip-body"><div class="equip-brand">Komatsu · Caterpillar</div><h4 class="equip-name">Autonomous Haul Trucks</h4><p class="equip-spec">300–400t payload · AHS autonomous navigation · 240 units fleet wide · 24/7 unmanned operation</p></div></div>
+      <div class="equip-card reveal"><div class="equip-img-wrap"><img src="https://images.unsplash.com/photo-1524391797008-b14d75fc6d42?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Drill Rigs" class="equip-img"></div><div class="equip-body"><div class="equip-brand">Epiroc · Sandvik</div><h4 class="equip-name">Rotary Blast Hole Drills</h4><p class="equip-spec">Up to 445mm hole diameter · GPS-guided positioning · Automated rod handling · 60m/hour penetration rates</p></div></div>
+      <div class="equip-card reveal"><div class="equip-img-wrap"><img src="https://images.unsplash.com/photo-1580901369227-308f6f40bdeb?q=80&w=1172&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Excavators" class="equip-img"></div><div class="equip-body"><div class="equip-brand">Hitachi · Liebherr</div><h4 class="equip-name">Ultra-Class Excavators</h4><p class="equip-spec">800–900t operating weight · 52m³ buckets · Real-time payload monitoring · Hydraulic hybrid systems</p></div></div>
+      <div class="equip-card reveal"><div class="equip-img-wrap"><img src="https://images.unsplash.com/photo-1661997608910-da43d46039a8?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Underground" class="equip-img"></div><div class="equip-body"><div class="equip-brand">Sandvik · Epiroc</div><h4 class="equip-name">Battery-Electric LHDs</h4><p class="equip-spec">25t bucket capacity · Zero-emission underground operation · Auto-tramming capability · Fast-charge technology</p></div></div>
+      <div class="equip-card reveal"><div class="equip-img-wrap"><img src="https://images.unsplash.com/photo-1659539564908-99cf33321c56?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Processing" class="equip-img"></div><div class="equip-body"><div class="equip-brand">FLSmidth · Metso</div><h4 class="equip-name">SAG / Ball Mill Circuits</h4><p class="equip-spec">28MW gearless drives · Variable speed control · AI-optimised load management · 35 Mtpa throughput</p></div></div>
+      <div class="equip-card reveal"><div class="equip-img-wrap"><img src="https://images.unsplash.com/photo-1520870121499-7dddb6ccbcde?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Drones" class="equip-img"></div><div class="equip-body"><div class="equip-brand">DJI · Skydio</div><h4 class="equip-name">Survey Drone Fleet</h4><p class="equip-spec">LiDAR and photogrammetry payloads · Sub-5cm accuracy · Autonomous flight paths · 3D pit volume scanning</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-band">
+  <div class="cta-band-inner">
+    <h2 class="cta-title reveal">NEED A <span class="gold">SOLUTION?</span></h2>
+    <p class="cta-text reveal">Tell us about your project and we'll design a tailored mining service package.</p>
+    <div style="display:flex;gap:18px;justify-content:center;flex-wrap:wrap;" class="reveal">
+      <a href="error.html" class="btn-primary">Request a Proposal →</a>
+      <a href="error.html" class="btn-outline">See Case Studies</a>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY STRIP -->
+<div class="gallery-strip">
+  <div class="gallery-tile" style="background-image:url('https://images.unsplash.com/photo-1524037755327-dc2def03712a?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');" onclick="this.classList.toggle('open')">
+    <div class="gallery-caption">Mineral Processing</div>
+    <p class="gallery-desc">Our SAG/ball mill circuits and gravity separation lines run 35 Mtpa throughput with AI-optimised load management.</p>
+  </div>
+  <div class="gallery-tile" style="background-image:url('https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&q=85');" onclick="this.classList.toggle('open')">
+    <div class="gallery-caption">Surface Operations</div>
+    <p class="gallery-desc">Open-pit blast design and autonomous haul fleets keep our surface mining sites running safely around the clock.</p>
+  </div>
+  <div class="gallery-tile" style="background-image:url('https://images.unsplash.com/photo-1565008447742-97f6f38c985c?w=600&q=85');" onclick="this.classList.toggle('open')">
+    <div class="gallery-caption">Survey &amp; Mapping</div>
+    <p class="gallery-desc">LiDAR-equipped drone fleets deliver sub-5cm accuracy 3D pit scans for precise volumetric and geological surveys.</p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">
+          <img src="./assets/stackly-removebg-preview.webp" alt="STACKLY" class="footer-logo-img">
+        </div>
+        <p class="footer-desc">STACKLY Mining &amp; Industry — powering the world's most critical resources with 25+ years of engineering excellence, safety leadership, and sustainable operations across 48 countries.</p>
+        <div class="footer-socials">
+          <a href="error.html" class="social-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622Zm-1.161 17.52h1.833L7.084 4.126H5.117Z"/></svg>
+          </a>
+          <a href="error.html" class="social-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </a>
+          <a href="error.html" class="social-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </a>
+          <a href="error.html" class="social-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div>
+        <h4 class="footer-heading">Company</h4>
+      <ul>
+        <li><a href="index.html">→ Home</a></li>
+        <li><a href="about.html">→ About Us</a></li>
+        <li><a href="services.html">→ Services</a></li>
+        <li><a href="projects.html">→ Projects</a></li>
+        <li><a href="blog.html">→ News &amp; Blog</a></li>
+        <li><a href="contact.html">→ Contact</a></li>
+      </ul>
+      </div>
+      <div>
+        <h4 class="footer-heading">Services</h4>
+        <ul class="footer-links">
+          <li><a href="error.html">→ Surface Mining</a></li>
+          <li><a href="error.html">→ Underground Mining</a></li>
+          <li><a href="error.html">→ Mineral Processing</a></li>
+          <li><a href="error.html">→ Geological Surveys</a></li>
+          <li><a href="error.html">→ Mine Automation</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="footer-heading">Contact</h4>
+        <ul class="footer-links">
+          <li><span class="footer-static">📍 MMR Complex, Salem, Tamil Nadu.</span></li>
+          <li><a href="tel:+919876543210">📞 +919876543210</a></li>
+          <li><a href="mailto:info@stackly.com">✉ info@stackly.com</a></li>
+          <li><span class="footer-static">🕐 Mon–Fri 08:00–18:00 AEST</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 STACKLY Mining &amp; Industry. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="error.html">Privacy Policy</a>
+        <a href="error.html">Terms of Use</a>
+        <a href="error.html">Sitemap</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+const canvas=document.getElementById('bg-canvas');
+const ctx=canvas.getContext('2d');
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+resize();
+window.addEventListener('resize',resize);
+let particles=[];
+class P{
+  constructor(){this.reset();}
+  reset(){
+    this.x=Math.random()*canvas.width;
+    this.y=Math.random()*canvas.height;
+    this.vx=(Math.random()-0.5)*0.3;
+    this.vy=(Math.random()-0.5)*0.3;
+    this.size=Math.random()*1.2+0.2;
+    this.alpha=Math.random()*0.35+0.05;
+    this.color=Math.random()>0.7?'#D4A017':'#ffffff';
+  }
+  update(){
+    this.x+=this.vx;this.y+=this.vy;
+    if(this.x<0||this.x>canvas.width||this.y<0||this.y>canvas.height)this.reset();
+  }
+  draw(){
+    ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    ctx.fillStyle=this.color;ctx.globalAlpha=this.alpha;ctx.fill();
+  }
+}
+for(let i=0;i<80;i++)particles.push(new P());
+function animate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p=>{p.update();p.draw();});
+  ctx.globalAlpha=1;requestAnimationFrame(animate);
+}
+animate();
+
+window.addEventListener('scroll',()=>{
+  document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>80);
+});
+
+function toggleMenu(){
+  document.getElementById('mobileMenu').classList.toggle('open');
+  document.getElementById('hamburger').classList.toggle('is-open');
+}
+
+const tl=gsap.timeline({delay:0.2});
+tl.fromTo('#ph-eyebrow',{opacity:0,y:20},{opacity:1,y:0,duration:0.7})
+  .fromTo('#ph-title',{opacity:0,y:60,skewY:4},{opacity:1,y:0,skewY:0,duration:1,ease:'power4.out'},'-=0.3');
+
+function setupReveal(sel,from,to){
+  gsap.utils.toArray(sel).forEach(el=>{
+    gsap.fromTo(el,{opacity:0,...from},{opacity:1,...to,duration:0.9,ease:'power3.out',
+      scrollTrigger:{trigger:el,start:'top 88%',toggleActions:'play none none none'}});
+  });
+}
+setupReveal('.reveal',{y:50},{y:0});
+setupReveal('.reveal-left',{x:-70},{x:0});
+setupReveal('.reveal-right',{x:70},{x:0});
+setupReveal('.reveal-scale',{scale:0.82},{scale:1});
+
+gsap.utils.toArray('.equip-card').forEach((c,i)=>{
+  gsap.fromTo(c,{opacity:0,y:40},{opacity:1,y:0,duration:0.7,delay:i*0.08,
+    scrollTrigger:{trigger:c,start:'top 88%',toggleActions:'play none none none'}});
+});
+</script>
+</body>
+</html>

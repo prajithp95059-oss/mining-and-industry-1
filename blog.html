@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog — STACKLY Mining & Industry</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Montserrat:wght@300;400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+/* ══════════════════════════════════════
+   ROOT TOKENS
+══════════════════════════════════════ */
+:root{
+  --gold:#D4A017;
+  --gold-light:#F5C842;
+  --dark:#0A0A0A;
+  --dark-2:#111111;
+  --dark-3:#1A1A1A;
+  --white:#F0EDE8;
+  --gray:#888;
+  --border:rgba(212,160,23,0.15);
+  --font-display:'Playfair Display',serif;
+  --font-heading:'Montserrat',sans-serif;
+  --font-body:'Rajdhani',sans-serif;
+  --nav-h:80px;
+  --pad-x:60px;
+  --section-y:100px;
+}
+
+/* ══════════════════════════════════════
+   RESET
+══════════════════════════════════════ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;overflow-x:hidden;max-width:100%;}
+body{background:var(--dark);color:var(--white);font-family:var(--font-body);overflow-x:hidden;max-width:100%;width:100%;}
+img{max-width:100%;height:auto;display:block;}
+a{text-decoration:none;color:inherit;}
+ul,ol{list-style:none;}
+::selection{background:var(--gold);color:var(--dark);}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--dark);}
+::-webkit-scrollbar-thumb{background:var(--gold);}
+
+/* ══════════════════════════════════════
+   BACKGROUND CANVAS
+══════════════════════════════════════ */
+#bg-canvas{
+  position:fixed;inset:0;z-index:0;
+  pointer-events:none;opacity:.32;
+  width:100%;height:100%;
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;width:100%;z-index:1000;
+  padding:0 40px;display:flex;align-items:center;justify-content:space-between;
+  height:80px;background:rgba(10,10,10,0.85);
+  backdrop-filter:blur(20px);border-bottom:1px solid rgba(212,160,23,0.15);
+  transition:all 0.4s ease;
+}
+nav.scrolled{height:60px;background:rgba(10,10,10,0.97);}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0;}
+.nav-logo-img{height:44px;max-width:180px;width:auto;filter:brightness(1.1);}
+.nav-links{display:flex;align-items:center;gap:2px;}
+.nav-links a{
+  color:var(--white);text-decoration:none;font-family:var(--font-heading);
+  font-size:0.72rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;
+  padding:8px 10px;border-radius:4px;transition:all 0.3s ease;position:relative;overflow:hidden;
+  white-space:nowrap;
+}
+.nav-links a::before{content:'';position:absolute;bottom:0;left:0;width:0;height:1px;background:var(--gold);transition:width 0.3s ease;}
+.nav-links a:hover{color:var(--gold);}
+.nav-links a:hover::before,.nav-links a.active::before{width:100%;}
+.nav-links a.active{color:var(--gold);}
+.nav-cta{background:var(--gold);color:var(--dark)!important;font-weight:700!important;padding:9px 18px!important;border-radius:4px;}
+.nav-cta:hover{background:var(--gold-light)!important;transform:translateY(-1px);}
+.hamburger{
+  display:none;flex-direction:column;justify-content:center;align-items:center;
+  width:40px;height:40px;cursor:pointer;padding:4px;
+  position:relative;flex-shrink:0;z-index:1001;
+}
+.hamburger span{
+  display:block;width:26px;height:2px;background:var(--gold);border-radius:1px;
+  position:absolute;transition:transform 0.35s cubic-bezier(0.23,1,0.32,1),opacity 0.25s ease;transform-origin:center;
+}
+.hamburger span:nth-child(1){transform:translateY(-7px);}
+.hamburger span:nth-child(2){transform:translateY(0);}
+.hamburger span:nth-child(3){transform:translateY(7px);}
+.hamburger.is-open span:nth-child(1){transform:translateY(0) rotate(45deg);}
+.hamburger.is-open span:nth-child(2){opacity:0;transform:scaleX(0);}
+.hamburger.is-open span:nth-child(3){transform:translateY(0) rotate(-45deg);}
+.mobile-menu{
+  display:none;position:fixed;top:80px;left:0;width:100%;
+  background:rgba(10,10,10,0.98);backdrop-filter:blur(20px);
+  padding:30px;flex-direction:column;gap:8px;
+  border-bottom:1px solid rgba(212,160,23,0.2);z-index:999;
+}
+.mobile-menu.open{display:flex;}
+.mobile-menu a{
+  color:var(--white);text-decoration:none;font-family:var(--font-heading);
+  font-size:1rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;
+  padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.07);transition:color 0.3s;
+}
+.mobile-menu a:hover{color:var(--gold);}
+/* ══════════════════════════════════════
+   SHARED LAYOUT
+══════════════════════════════════════ */
+section{position:relative;z-index:1;width:100%;box-sizing:border-box;}
+
+.section-pad{
+  padding:var(--section-y) var(--pad-x);
+  width:100%;box-sizing:border-box;
+}
+.section-header{text-align:center;margin-bottom:64px;}
+.section-eyebrow{
+  display:inline-block;font-family:var(--font-heading);
+  font-size:.68rem;font-weight:700;letter-spacing:4px;
+  text-transform:uppercase;color:var(--gold);margin-bottom:14px;
+}
+.section-title{
+  font-family:var(--font-display);
+  font-size:clamp(2rem,5vw,4.5rem);line-height:1;
+  color:var(--white);letter-spacing:1px;
+}
+.section-title .gold{color:var(--gold);}
+.section-line{width:56px;height:2px;background:var(--gold);margin:20px auto 0;position:relative;}
+.section-line::before{
+  content:'';position:absolute;left:-28px;top:-2px;
+  width:18px;height:6px;border:2px solid var(--gold);
+}
+
+/* ══════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════ */
+.btn-primary{
+  display:inline-block;
+  background:var(--gold);color:var(--dark);
+  font-family:var(--font-heading);font-size:.88rem;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;
+  padding:14px 38px;border:none;cursor:pointer;border-radius:3px;
+  transition:background .3s,transform .3s,box-shadow .3s;
+  position:relative;overflow:hidden;
+}
+.btn-primary::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(45deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%);
+  transform:translateX(-100%);transition:transform .5s;
+}
+.btn-primary:hover::before{transform:translateX(100%);}
+.btn-primary:hover{
+  background:var(--gold-light);transform:translateY(-3px);
+  box-shadow:0 14px 36px rgba(212,160,23,.38);
+}
+.btn-outline{
+  display:inline-block;
+  border:1px solid rgba(212,160,23,.6);color:var(--white);
+  font-family:var(--font-heading);font-size:.88rem;font-weight:600;
+  letter-spacing:2px;text-transform:uppercase;
+  padding:14px 38px;background:transparent;cursor:pointer;border-radius:3px;
+  transition:all .3s;
+}
+.btn-outline:hover{
+  border-color:var(--gold);color:var(--gold);
+  background:rgba(212,160,23,.08);transform:translateY(-3px);
+}
+
+/* ══════════════════════════════════════
+   PAGE HERO
+══════════════════════════════════════ */
+.page-hero{
+  position:relative;
+  min-height:58vh;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;z-index:1;
+  padding-top:var(--nav-h);
+  width:100%;box-sizing:border-box;
+}
+.page-hero-bg{position:absolute;inset:0;z-index:0;overflow:hidden;}
+.page-hero-bg img{
+  width:100%;height:100%;
+  object-fit:cover;opacity:.32;
+  position:absolute;inset:0;
+}
+.page-hero-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 30%,var(--dark) 100%);
+}
+.page-hero-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(212,160,23,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(212,160,23,.05) 1px,transparent 1px);
+  background-size:60px 60px;z-index:1;
+  animation:gridShift 20s linear infinite;
+}
+@keyframes gridShift{0%{background-position:0 0}100%{background-position:60px 60px}}
+
+.page-hero-content{
+  position:relative;z-index:2;text-align:center;
+  /* KEY FIX: use padding instead of margin so it stays symmetric */
+  padding:40px var(--pad-x);
+  width:100%;box-sizing:border-box;
+}
+.page-eyebrow{
+  font-family:var(--font-heading);font-size:.68rem;font-weight:700;
+  letter-spacing:5px;text-transform:uppercase;color:var(--gold);
+  margin-bottom:14px;display:block;
+}
+.page-hero h1{
+  font-family:var(--font-display);
+  font-size:clamp(3rem,9vw,7.5rem);
+  line-height:.92;letter-spacing:2px;color:var(--white);
+}
+.page-hero h1 span{color:var(--gold);}
+.hero-line{overflow:hidden;}
+.breadcrumb{
+  display:flex;align-items:center;gap:10px;justify-content:center;
+  margin-top:18px;font-family:var(--font-heading);
+  font-size:.7rem;color:var(--gray);letter-spacing:2px;
+}
+.breadcrumb a{color:var(--gold);}
+
+
+
+
+.nl-form input.input-error{border-color:#E55353;}
+
+/* ══════════════════════════════════════
+   FEATURED POST
+══════════════════════════════════════ */
+.featured-post{
+  display:grid;grid-template-columns:1.5fr 1fr;
+  gap:0;min-height:460px;
+  margin-bottom:72px;border:1px solid var(--border);
+  width:100%;box-sizing:border-box;
+  overflow:hidden;
+}
+.fp-img{position:relative;overflow:hidden;}
+.fp-img img{width:100%;height:100%;object-fit:cover;transition:transform .8s;display:block;}
+.featured-post:hover .fp-img img{transform:scale(1.04);}
+.fp-img-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to right,transparent 55%,rgba(10,10,10,.9) 100%);
+}
+.fp-body{
+  background:var(--dark-3);
+  padding:52px 44px;
+  display:flex;flex-direction:column;justify-content:center;
+}
+.fp-cat{
+  font-family:var(--font-heading);font-size:.63rem;font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;color:var(--gold);
+  margin-bottom:10px;display:block;
+}
+.fp-title{
+  font-family:var(--font-heading);
+  font-size:clamp(1.4rem,2.5vw,2rem);
+  font-weight:700;line-height:1.3;margin-bottom:14px;
+}
+.fp-excerpt{color:#999;font-size:.88rem;line-height:1.8;margin-bottom:22px;}
+.fp-meta{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  font-family:var(--font-heading);font-size:.72rem;color:var(--gray);
+  margin-bottom:22px;
+}
+
+/* ══════════════════════════════════════
+   BLOG LAYOUT
+══════════════════════════════════════ */
+.blog-layout{
+  display:grid;grid-template-columns:1fr 300px;
+  gap:52px;align-items:start;
+  width:100%;box-sizing:border-box;
+}
+.blog-list{display:flex;flex-direction:column;gap:24px;}
+
+.blog-row{
+  display:grid;grid-template-columns:240px 1fr;
+  gap:0;background:var(--dark-3);
+  border:1px solid rgba(255,255,255,.04);overflow:hidden;
+  transition:all .4s;width:100%;box-sizing:border-box;
+}
+.blog-row:hover{
+  border-color:var(--border);
+  box-shadow:0 18px 55px rgba(0,0,0,.4);
+}
+/* REMOVED translateX hover — it was one source of the right-side overflow */
+.blog-row-img{overflow:hidden;flex-shrink:0;}
+.blog-row-img img{
+  width:100%;height:100%;object-fit:cover;
+  min-height:180px;transition:transform .6s;display:block;
+}
+.blog-row:hover .blog-row-img img{transform:scale(1.07);}
+.blog-row-body{
+  padding:28px 32px;
+  display:flex;flex-direction:column;justify-content:center;
+  min-width:0;/* prevents text overflow pushing grid */
+}
+.bc-cat{
+  font-family:var(--font-heading);font-size:.62rem;font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;color:var(--gold);
+  margin-bottom:8px;display:block;
+}
+.bc-title{
+  font-family:var(--font-heading);font-size:1.1rem;font-weight:700;
+  line-height:1.4;margin-bottom:8px;transition:color .3s;
+}
+.blog-row:hover .bc-title{color:var(--gold);}
+.bc-excerpt{color:#777;font-size:.83rem;line-height:1.7;margin-bottom:14px;}
+.bc-meta{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  font-family:var(--font-heading);font-size:.7rem;color:var(--gray);
+}
+
+/* Pagination */
+.pagination{display:flex;gap:8px;justify-content:center;margin-top:44px;flex-wrap:wrap;}
+.page-btn{
+  width:42px;height:42px;border:1px solid var(--border);
+  background:transparent;color:var(--gray);
+  font-family:var(--font-heading);font-size:.85rem;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .3s;
+}
+.page-btn.active,.page-btn:hover{background:var(--gold);color:var(--dark);border-color:var(--gold);}
+
+/* ══════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════ */
+.sidebar-widget{
+  background:var(--dark-3);border:1px solid var(--border);
+  padding:28px;margin-bottom:22px;
+  width:100%;box-sizing:border-box;
+}
+.widget-title{
+  font-family:var(--font-heading);font-size:.82rem;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;color:var(--gold);
+  margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid var(--border);
+}
+.cat-list{display:flex;flex-direction:column;gap:4px;}
+.cat-list li a{
+  display:flex;align-items:center;justify-content:space-between;
+  color:#888;font-family:var(--font-heading);font-size:.83rem;
+  padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);
+  transition:color .3s;
+}
+.cat-list li a:hover{color:var(--gold);}
+.cat-list li a span{
+  background:rgba(212,160,23,.12);color:var(--gold);
+  padding:2px 9px;font-size:.68rem;font-weight:700;
+}
+.recent-list{display:flex;flex-direction:column;gap:13px;}
+.recent-item{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:6px;border-radius:2px;transition:background .3s;cursor:pointer;
+}
+.recent-item:hover{background:rgba(212,160,23,.06);}
+.recent-item img{width:56px;height:56px;object-fit:cover;flex-shrink:0;}
+.recent-item h5{
+  font-family:var(--font-heading);font-size:.85rem;font-weight:700;
+  line-height:1.4;margin-bottom:3px;transition:color .3s;
+}
+.recent-item:hover h5{color:var(--gold);}
+.recent-item span{font-family:var(--font-heading);font-size:.7rem;color:var(--gray);}
+.tags{display:flex;flex-wrap:wrap;gap:7px;}
+.tag{
+  background:rgba(212,160,23,.08);border:1px solid var(--border);
+  color:var(--gray);padding:5px 12px;
+  font-family:var(--font-heading);font-size:.7rem;font-weight:600;
+  letter-spacing:1px;cursor:pointer;transition:all .3s;
+}
+.tag:hover{background:var(--gold);color:var(--dark);border-color:var(--gold);}
+.nl-form{display:flex;flex-direction:column;gap:10px;}
+.nl-form input{
+  background:var(--dark-2);border:1px solid var(--border);
+  color:var(--white);padding:11px 14px;
+  font-family:var(--font-body);font-size:15px;outline:none;
+  transition:border-color .3s;width:100%;box-sizing:border-box;
+}
+.nl-form input:focus{border-color:var(--gold);}
+.nl-form input::placeholder{color:#555;}
+.nl-form .btn-primary{width:100%;text-align:center;border:none;}
+
+/* ══════════════════════════════════════
+   CTA BAND
+══════════════════════════════════════ */
+.cta-band{
+  padding:90px var(--pad-x);text-align:center;
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,var(--dark-3) 0%,#1A1208 100%);
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  width:100%;box-sizing:border-box;
+}
+.cta-band::before{
+  content:'';position:absolute;top:50%;left:50%;
+  width:600px;height:600px;border-radius:50%;
+  background:radial-gradient(circle,rgba(212,160,23,.07) 0%,transparent 70%);
+  transform:translate(-50%,-50%);
+  animation:pulseRing 3s ease-in-out infinite;pointer-events:none;
+}
+@keyframes pulseRing{
+  0%,100%{transform:translate(-50%,-50%) scale(1)}
+  50%{transform:translate(-50%,-50%) scale(1.18)}
+}
+.cta-title{
+  font-family:var(--font-display);
+  font-size:clamp(2rem,6vw,5.5rem);
+  line-height:1.05;margin-bottom:14px;position:relative;z-index:1;
+}
+.cta-title .gold{color:var(--gold);}
+.cta-text{
+  color:#888;font-size:clamp(.9rem,2vw,1.05rem);line-height:1.7;
+  margin-bottom:34px;position:relative;z-index:1;
+}
+.cta-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1;}
+
+/* ══════════════════════════════════════
+   FOOTER
+══════════════════════════════════════ */
+footer{
+  background:var(--dark-2);border-top:1px solid var(--border);
+  padding:76px var(--pad-x) 0;position:relative;z-index:2;
+  width:100%;box-sizing:border-box;
+}
+.footer-grid{
+  display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;
+  gap:48px;margin-bottom:52px;
+}
+.footer-brand p{
+  color:var(--gray);font-family:var(--font-heading);
+  font-size:13px;line-height:1.8;margin-top:14px;max-width:280px;
+}
+.footer-col h4{
+  font-family:var(--font-heading);font-size:13px;
+  letter-spacing:3px;text-transform:uppercase;color:var(--gold);
+  margin-bottom:16px;font-weight:700;
+}
+.footer-col ul{display:flex;flex-direction:column;gap:9px;}
+.footer-col a{color:var(--gray);font-family:var(--font-heading);font-size:13px;transition:color .3s;}
+.footer-col a:hover{color:var(--gold);}
+.footer-static{color:var(--gray);font-family:var(--font-heading);font-size:13px;display:inline-block;}
+.socials-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+.social-btn{
+  width:38px;height:38px;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--gray);transition:all .3s;flex-shrink:0;
+}
+.social-btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(212,160,23,.08);}
+.footer-bottom{
+  border-top:1px solid var(--border);padding:20px 0;
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:10px;
+}
+.footer-bottom p{color:var(--gray);font-family:var(--font-heading);font-size:12px;}
+.footer-bottom-links{display:flex;gap:20px;flex-wrap:wrap;}
+.footer-bottom-links a{
+  color:var(--gray);font-family:var(--font-heading);
+  font-size:12px;transition:color .3s;
+}
+.footer-bottom-links a:hover{color:var(--gold);}
+
+/* ══════════════════════════════════════
+   SCROLL REVEAL
+══════════════════════════════════════ */
+.reveal{opacity:0;transform:translateY(44px);}
+.reveal-left{opacity:0;transform:translateX(-60px);}
+.reveal-right{opacity:0;transform:translateX(60px);}
+.reveal-scale{opacity:0;transform:scale(.85);}
+
+/* ══════════════════════════════════════
+   REDUCED MOTION
+══════════════════════════════════════ */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    transition-duration:.01ms!important;
+    animation-iteration-count:1!important;
+  }
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE — 1280px
+══════════════════════════════════════ */
+@media(max-width:1280px){
+  :root{--pad-x:44px;--section-y:88px;}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:32px;}
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE — 1024px
+══════════════════════════════════════ */
+@media(max-width:1023px){
+  :root{--pad-x:32px;--section-y:76px;}
+  .nav-links{display:none;}
+  .hamburger{display:flex;}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:28px;}
+  .blog-layout{grid-template-columns:1fr;}
+  .featured-post{grid-template-columns:1fr;}
+  .fp-img{min-height:240px;}
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE — 768px
+   (Root of the left-gap bug — padding was
+    too large & translateX was leaking.)
+══════════════════════════════════════ */
+@media(max-width:768px){
+  :root{
+    --nav-h:62px;
+    --pad-x:18px;   /* tightened from 20px — avoids sub-pixel calc gap */
+    --section-y:60px;
+  }
+
+  /* nav / header */
+  nav{padding:0 18px;height:var(--nav-h);}
+  nav.scrolled{height:52px;}
+  .nav-logo-img{height:32px;max-width:130px;}
+  .mobile-menu{top:var(--nav-h);padding:16px 18px 24px;}
+
+  /* hero */
+  .page-hero{min-height:50vh;}
+  .page-hero h1{font-size:clamp(2.4rem,11vw,4.5rem);}
+  .page-hero-content{padding:32px 18px;}  /* symmetric — no left gap */
+
+  /* sections */
+  .section-pad{padding:var(--section-y) 18px;}
+  .section-header{margin-bottom:44px;}
+  .section-title{font-size:clamp(1.8rem,8vw,2.8rem);}
+
+  /* featured post */
+  .featured-post{margin-bottom:40px;}
+  .fp-body{padding:28px 18px;}
+  .fp-title{font-size:clamp(1.3rem,5vw,1.8rem);}
+
+  /* blog rows — stack vertically */
+  .blog-row{grid-template-columns:1fr;}
+  .blog-row-img img{min-height:185px;max-height:200px;width:100%;}
+  .blog-row-body{padding:18px 16px;}
+  .bc-title{font-size:1rem;}
+
+  /* cta */
+  .cta-band{padding:64px 18px;}
+  .cta-title{font-size:clamp(1.8rem,8.5vw,3rem);}
+  .cta-buttons{flex-direction:column;align-items:center;gap:12px;}
+  .cta-buttons .btn-primary,
+  .cta-buttons .btn-outline{width:100%;max-width:280px;text-align:center;padding:13px 18px;}
+
+  /* footer */
+  footer{padding:52px 18px 0;}
+  .footer-grid{grid-template-columns:1fr;gap:28px;}
+  .footer-brand p{max-width:100%;}
+  .footer-bottom{flex-direction:column;text-align:center;gap:8px;}
+  .footer-bottom-links{justify-content:center;gap:14px;}
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE — 576px
+══════════════════════════════════════ */
+@media(max-width:576px){
+  :root{--pad-x:14px;--section-y:50px;}
+  nav{padding:0 14px;}
+  .mobile-menu{padding:14px 14px 20px;}
+  .page-hero h1{font-size:clamp(2rem,12vw,3.5rem);}
+  .page-hero-content{padding:28px 14px;}
+  .section-pad{padding:var(--section-y) 14px;}
+  .fp-body{padding:22px 14px;}
+  .blog-row-body{padding:14px 12px;}
+  .bc-title{font-size:.95rem;}
+  .bc-excerpt{font-size:.8rem;}
+  .cta-band{padding:52px 14px;}
+  .cta-title{font-size:clamp(1.6rem,9vw,2.6rem);}
+  .cta-buttons .btn-primary,
+  .cta-buttons .btn-outline{max-width:240px;}
+  footer{padding:44px 14px 0;}
+  .sidebar-widget{padding:20px 14px;}
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE — 400px
+══════════════════════════════════════ */
+@media(max-width:400px){
+  :root{--pad-x:12px;}
+  nav{padding:0 12px;}
+  .mobile-menu{padding:12px 12px 18px;}
+  .nav-logo-img{height:26px;max-width:110px;}
+  .page-hero h1{font-size:clamp(1.8rem,13vw,2.8rem);}
+  .page-hero-content{padding:24px 12px;}
+  .section-pad{padding:var(--section-y) 12px;}
+  .fp-body{padding:18px 12px;}
+  .blog-row-body{padding:12px 10px;}
+  .bc-title{font-size:.9rem;}
+  .footer-bottom-links{flex-direction:column;gap:6px;align-items:center;}
+  .social-btn{width:34px;height:34px;}
+  footer{padding:36px 12px 0;}
+  .sidebar-widget{padding:16px 12px;}
+  .cta-band{padding:44px 12px;}
+  .mobile-menu{padding:10px 12px 16px;}
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE — 360px (very small)
+══════════════════════════════════════ */
+@media(max-width:360px){
+  :root{--pad-x:10px;}
+  nav{padding:0 10px;}
+  .page-hero-content{padding:20px 10px;}
+  .section-pad{padding:var(--section-y) 10px;}
+  .fp-body{padding:16px 10px;}
+  .blog-row-body{padding:10px 8px;}
+  footer{padding:32px 10px 0;}
+  .sidebar-widget{padding:14px 10px;}
+  .cta-band{padding:40px 10px;}
+}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+
+<!-- ══ NAV ══ -->
+<nav id="navbar">
+  <a href="index.html" class="nav-logo">
+    <img src="./assets/stackly-removebg-preview.webp" alt="STACKLY" class="nav-logo-img">
+  </a>
+  <div class="nav-links">
+    <a href="index.html" >Home</a>
+    <a href="./about.html">About</a>
+    <a href="./services.html">Services</a>
+    <a href="./projects.html">Projects</a>
+    <a href="./blog.html" class="active">Blog</a>
+    <a href="./contact.html">Contact</a>
+    <a href="./login.html" class="nav-cta">Login</a>
+  </div>
+  <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Home</a>
+  <a href="./about.html">About</a>
+  <a href="./services.html">Services</a>
+  <a href="./projects.html">Projects</a>
+  <a href="blog.html">Blog</a>
+  <a href="./contact.html">Contact</a>
+  <a href="login.html">Login</a>
+</div>
+
+<!-- ══ PAGE HERO ══ -->
+<section class="page-hero">
+  <div class="page-hero-bg">
+    <img src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1920&q=90" alt="Blog">
+  </div>
+  <div class="page-hero-overlay"></div>
+  <div class="page-hero-grid"></div>
+  <div class="page-hero-content">
+    <div class="page-eyebrow hero-line" id="ey1">News · Insights · Innovation</div>
+    <h1>
+      <div class="hero-line" id="ht1">MINING</div>
+      <div class="hero-line" id="ht2"><span>JOURNAL</span></div>
+    </h1>
+    <div class="breadcrumb">
+      <a href="index.html">Home</a> / <span>Blog</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══ BLOG SECTION ══ -->
+<section class="section-pad">
+  <div class="section-header">
+    <span class="section-eyebrow reveal">Featured Story</span>
+    <h2 class="section-title reveal">Editor's <span class="gold">Pick</span></h2>
+    <div class="section-line reveal"></div>
+  </div>
+
+  <!-- Featured Post -->
+  <div class="featured-post reveal">
+    <div class="fp-img">
+      <img src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=900&q=90" alt="AI Mining">
+      <div class="fp-img-overlay"></div>
+    </div>
+    <div class="fp-body">
+      <span class="fp-cat">Technology & Innovation</span>
+      <h2 class="fp-title">How Artificial Intelligence Is Rewriting the Rules of Underground Mining Navigation</h2>
+      <p class="fp-excerpt">Machine learning models trained on billions of drill-hole data points can now predict ore grades at 10-metre intervals in real time, reducing dilution by up to 18%.</p>
+      <div class="fp-meta">
+        <span>By Dr. James Park, CTO</span><span>·</span>
+        <span>June 12, 2026</span><span>·</span><span>8 min read</span>
+      </div>
+      <a href="error.html" class="btn-primary">Read Full Article →</a>
+    </div>
+  </div>
+
+  <!-- Blog Layout -->
+  <div class="blog-layout">
+    <!-- Main List -->
+    <div>
+      <div class="blog-list">
+
+        <div class="blog-row reveal">
+          <div class="blog-row-img"><img src="https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=400&q=85" alt="Net Zero"></div>
+          <div class="blog-row-body">
+            <span class="bc-cat">Sustainability</span>
+            <h3 class="bc-title">Our Path to Carbon Neutrality: A 2035 Roadmap for All Mining Operations</h3>
+            <p class="bc-excerpt">From solar-powered crushing plants to battery-electric haulage fleets — STACKLY's detailed blueprint for achieving net-zero emissions across all 28 active mining operations.</p>
+            <div class="bc-meta">
+              <span>May 28, 2026</span><span>·</span><span>7 min read</span>
+              <span>·</span><span style="color:var(--gold)">Sustainability</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="blog-row reveal">
+          <div class="blog-row-img"><img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&q=85" alt="Safety"></div>
+          <div class="blog-row-body">
+            <span class="bc-cat">Safety</span>
+            <h3 class="bc-title">Zero Harm: Building a Safety Culture That Goes Beyond Compliance</h3>
+            <p class="bc-excerpt">STACKLY's Chief Safety Officer explains the behavioural-based safety programmes, wearable IoT monitoring, and leadership mindset shifts that underpin our 98% incident-free record.</p>
+            <div class="bc-meta">
+              <span>Apr 15, 2026</span><span>·</span><span>5 min read</span>
+              <span>·</span><span style="color:var(--gold)">Safety</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="blog-row reveal">
+          <div class="blog-row-img"><img src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&q=85" alt="Pilbara"></div>
+          <div class="blog-row-body">
+            <span class="bc-cat">Case Study</span>
+            <h3 class="bc-title">Inside the Pilbara Phase III: The World's Most Automated Open-Pit Iron Ore Mine</h3>
+            <p class="bc-excerpt">A deep dive into how we deployed 240 autonomous haul trucks, AI-guided drilling, and a remote operations centre to deliver the $2.4B expansion on time and on budget.</p>
+            <div class="bc-meta">
+              <span>Mar 20, 2026</span><span>·</span><span>10 min read</span>
+              <span>·</span><span style="color:var(--gold)">Projects</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="blog-row reveal">
+          <div class="blog-row-img"><img src="https://images.unsplash.com/photo-1584774354932-62ceb99e6053?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Copper"></div>
+          <div class="blog-row-body">
+            <span class="bc-cat">Operations</span>
+            <h3 class="bc-title">High-Altitude Mining: The Engineering Challenges of the Atacama Copper Complex</h3>
+            <p class="bc-excerpt">Operating a world-class copper mine at 4,200 metres above sea level presents unique engineering, logistics, and personnel challenges.</p>
+            <div class="bc-meta">
+              <span>Feb 8, 2026</span><span>·</span><span>6 min read</span>
+              <span>·</span><span style="color:var(--gold)">Operations</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="blog-row reveal">
+          <div class="blog-row-img"><img src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Community"></div>
+          <div class="blog-row-body">
+            <span class="bc-cat">Community</span>
+            <h3 class="bc-title">Mining and Community: How STACKLY's $120M Social Investment Is Changing Lives</h3>
+            <p class="bc-excerpt">From building schools and health clinics to funding renewable energy for remote villages — our community development work across three continents.</p>
+            <div class="bc-meta">
+              <span>Jan 22, 2026</span><span>·</span><span>9 min read</span>
+              <span>·</span><span style="color:var(--gold)">Community</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /blog-list -->
+
+      <div class="pagination reveal">
+        <a class="page-btn active">1</a>
+        <a href="error.html" class="page-btn">2</a>
+        <a href="error.html" class="page-btn">3</a>
+        <a href="error.html" class="page-btn">→</a>
+      </div>
+    </div><!-- /main -->
+
+    <!-- Sidebar -->
+    <aside class="reveal-right">
+      <div class="sidebar-widget">
+        <h4 class="widget-title">Categories</h4>
+        <ul class="cat-list">
+          <li><a href="error.html">Technology &amp; AI <span>8</span></a></li>
+          <li><a href="error.html">Sustainability <span>12</span></a></li>
+          <li><a href="error.html">Safety <span>9</span></a></li>
+          <li><a href="error.html">Case Studies <span>15</span></a></li>
+          <li><a href="error.html">Operations <span>11</span></a></li>
+          <li><a href="error.html">Community <span>7</span></a></li>
+          <li><a href="error.html">Industry News <span>20</span></a></li>
+        </ul>
+      </div>
+
+      <div class="sidebar-widget">
+        <h4 class="widget-title">Recent Posts</h4>
+        <div class="recent-list">
+          <div class="recent-item">
+            <img src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=80&q=80" alt="AI">
+            <div><h5>AI Rewriting Underground Mining Rules</h5><span>Jun 12, 2026</span></div>
+          </div>
+          <div class="recent-item">
+            <img src="https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=80&q=80" alt="Net Zero">
+            <div><h5>Our Path to Carbon Neutrality 2035</h5><span>May 28, 2026</span></div>
+          </div>
+          <div class="recent-item">
+            <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=80&q=80" alt="Safety">
+            <div><h5>Zero Harm Culture Beyond Compliance</h5><span>Apr 15, 2026</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-widget">
+        <h4 class="widget-title">Popular Tags</h4>
+        <div class="tags">
+          <a href="error.html" class="tag">Automation</a>
+          <a href="error.html" class="tag">AI Mining</a>
+          <a href="error.html" class="tag">Iron Ore</a>
+          <a href="error.html" class="tag">Gold</a>
+          <a href="error.html" class="tag">Safety</a>
+          <a href="error.html" class="tag">Net Zero</a>
+          <a href="error.html" class="tag">Copper</a>
+          <a href="error.html" class="tag">Geology</a>
+          <a href="error.html" class="tag">EPCM</a>
+          <a href="error.html" class="tag">Tailings</a>
+        </div>
+      </div>
+
+      <div class="sidebar-widget">
+        <h4 class="widget-title">Newsletter</h4>
+        <p style="color:#777;font-size:.83rem;line-height:1.7;margin-bottom:14px;">Get the latest mining insights delivered monthly.</p>
+        <div class="nl-form">
+          <input type="email" id="nl-email" placeholder="Your email address" oninput="nlCheck()">
+          <button class="btn-primary" id="nl-btn" onclick="nlSubmit()" disabled>Subscribe →</button>
+        </div>
+        <p id="nl-err" style="color:#E55353;font-size:0.72rem;margin-top:6px;display:none;">Please enter a valid email address.</p>
+      </div>
+    </aside><!-- /sidebar -->
+
+  </div><!-- /blog-layout -->
+</section>
+
+<!-- ══ CTA BAND ══ -->
+<section class="cta-band">
+  <h2 class="cta-title reveal">START YOUR <span class="gold">PROJECT TODAY</span></h2>
+  <p class="cta-text reveal">Join over 120 companies that trust STACKLY with their most critical mining operations.</p>
+  <div class="cta-buttons reveal">
+    <a href="error.html" class="btn-primary">Contact Us →</a>
+    <a href="error.html" class="btn-outline">Download Company Profile</a>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <img src="./assets/stackly-removebg-preview.webp" alt="STACKLY" style="height:32px;filter:brightness(1.1);">
+      <p>STACKLY Mining &amp; Industry — powering the world's most critical resources with 25+ years of engineering excellence, safety leadership, and sustainable operations across 48 countries.</p>
+      <div class="socials-row">
+        <a href="error.html" class="social-btn" title="X"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622Zm-1.161 17.52h1.833L7.084 4.126H5.117Z"/></svg></a>
+        <a href="error.html" class="social-btn" title="Facebook"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+        <a href="error.html" class="social-btn" title="LinkedIn"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+        <a href="error.html" class="social-btn" title="YouTube"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="index.html">→ Home</a></li>
+        <li><a href="about.html">→ About Us</a></li>
+        <li><a href="services.html">→ Services</a></li>
+        <li><a href="projects.html">→ Projects</a></li>
+        <li><a href="blog.html">→ News &amp; Blog</a></li>
+        <li><a href="contact.html">→ Contact</a></li>
+      </ul>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="error.html">→ Surface Mining</a></li>
+        <li><a href="error.html">→ Underground Mining</a></li>
+        <li><a href="error.html">→ Mineral Processing</a></li>
+        <li><a href="error.html">→ Geological Surveys</a></li>
+        <li><a href="error.html">→ Mine Automation</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <ul>
+        <li><span class="footer-static">📍 MMR Complex, Salem, Tamil Nadu</span></li>
+        <li><a href="tel:+919876543210">📞 +91 98765 43210</a></li>
+        <li><a href="mailto:info@stackly.com">✉ info@stackly.com</a></li>
+        <li><span class="footer-static">🕐 Mon–Fri 08:00–18:00 IST</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 STACKLY Mining &amp; Industry. All rights reserved.</p>
+    <div class="footer-bottom-links">
+      <a href="error.html">Privacy Policy</a>
+      <a href="error.html">Terms of Use</a>
+      <a href="error.html">Sitemap</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ══ SCRIPTS ══ -->
+<script>
+/* Background particle canvas */
+gsap.registerPlugin(ScrollTrigger);
+const canvas = document.getElementById("bg-canvas");
+const ctx = canvas.getContext("2d");
+function rsz(){ canvas.width = innerWidth; canvas.height = innerHeight; }
+rsz();
+window.addEventListener("resize", rsz);
+class P {
+  constructor(){ this.r(); }
+  r(){
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.vx = (Math.random() - .5) * .4;
+    this.vy = (Math.random() - .5) * .4;
+    this.s = Math.random() * 1.3 + .3;
+    this.a = Math.random() * .44 + .1;
+    this.c = Math.random() > .7 ? "#D4A017" : "#fff";
+  }
+  u(){ this.x += this.vx; this.y += this.vy; if(this.x<0||this.x>canvas.width||this.y<0||this.y>canvas.height) this.r(); }
+  d(){ ctx.beginPath(); ctx.arc(this.x,this.y,this.s,0,Math.PI*2); ctx.fillStyle=this.c; ctx.globalAlpha=this.a; ctx.fill(); }
+}
+const pts = [];
+for(let i=0;i<110;i++) pts.push(new P());
+function ac(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  pts.forEach(p=>{ p.u(); p.d(); });
+  ctx.globalAlpha = 1;
+  for(let i=0;i<pts.length;i++){
+    for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y, d=Math.sqrt(dx*dx+dy*dy);
+      if(d<100){
+        ctx.beginPath(); ctx.moveTo(pts[i].x,pts[i].y); ctx.lineTo(pts[j].x,pts[j].y);
+        ctx.strokeStyle=`rgba(212,160,23,${(1-d/100)*.12})`; ctx.lineWidth=.5; ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(ac);
+}
+ac();
+</script>
+<script>
+/* Navbar scroll */
+window.addEventListener("scroll", ()=>{
+  document.getElementById("navbar").classList.toggle("scrolled", scrollY > 80);
+});
+
+/* Mobile menu toggle */
+function toggleMenu(){
+  document.getElementById("mobileMenu").classList.toggle("open");
+  document.getElementById("hamburger").classList.toggle("is-open");
+}
+
+/* Scroll reveals */
+function rev(sel, from, to){
+  gsap.utils.toArray(sel).forEach(el=>{
+    gsap.fromTo(el, {opacity:0,...from}, {opacity:1,...to,
+      duration:.85, ease:"power3.out",
+      scrollTrigger:{ trigger:el, start:"top 88%", toggleActions:"play none none none" }
+    });
+  });
+}
+rev(".reveal",      {y:44},   {y:0});
+rev(".reveal-left", {x:-60},  {x:0});
+rev(".reveal-right",{x:60},   {x:0});
+rev(".reveal-scale",{scale:.85},{scale:1});
+</script>
+<script>
+/* Hero entrance animation */
+const tl = gsap.timeline({delay:.2});
+tl.fromTo('#ey1',{opacity:0,y:24},{opacity:1,y:0,duration:.65})
+  .fromTo('#ht1',{opacity:0,y:64,skewY:4},{opacity:1,y:0,skewY:0,duration:.85,ease:'power4.out'},'-=.2')
+  .fromTo('#ht2',{opacity:0,y:64,skewY:4},{opacity:1,y:0,skewY:0,duration:.85,ease:'power4.out'},'-=.6');
+</script>
+<script>
+/* Blog row stagger */
+gsap.utils.toArray('.blog-row').forEach((c,i)=>{
+  gsap.fromTo(c,{opacity:0,x:-28},{opacity:1,x:0,
+    duration:.65, delay:i*.08,
+    scrollTrigger:{trigger:c,start:'top 88%',toggleActions:'play none none none'}
+  });
+});
+
+
+function nlCheck(){
+  const v=document.getElementById('nl-email').value.trim();
+  const valid=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  document.getElementById('nl-btn').disabled=!valid;
+  document.getElementById('nl-email').classList.remove('input-error');
+  if(document.getElementById('nl-err').style.display!=='none')
+    document.getElementById('nl-err').style.display='none';
+}
+function nlSubmit(){
+  const v=document.getElementById('nl-email').value.trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){
+    document.getElementById('nl-err').style.display='block';
+    document.getElementById('nl-email').classList.add('input-error');
+    return;
+  }
+  window.location.href='error.html';
+}
+</script>
+</body>
+</html>

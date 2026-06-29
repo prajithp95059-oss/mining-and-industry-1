@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — STACKLY Mining & Industry</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Montserrat:wght@300;400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+:root{
+  --gold:#D4A017;--gold-light:#F5C842;
+  --dark:#0A0A0A;--dark-2:#111111;--dark-3:#1A1A1A;
+  --white:#F0EDE8;--gray:#888;
+  --border:rgba(212,160,23,0.15);
+  --font-display:'Playfair Display',serif;
+  --font-heading:'Montserrat',sans-serif;
+  --font-body:'Rajdhani',sans-serif;
+  --nav-h:80px;--pad-x:60px;--section-y:100px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;overflow-x:hidden;}
+body{background:var(--dark);color:var(--white);font-family:var(--font-body);overflow-x:hidden;width:100%;}
+::selection{background:var(--gold);color:var(--dark);}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--dark);}::-webkit-scrollbar-thumb{background:var(--gold);}
+
+/* ── FIX: Clamp reveal transforms so they never push content off-screen ── */
+.reveal{opacity:0;transform:translateY(44px);}
+.reveal-left{opacity:0;transform:translateX(-60px);}
+.reveal-right{opacity:0;transform:translateX(60px);}
+.reveal-scale{opacity:0;transform:scale(.85);}
+
+/* Prevent overflow from pre-animation states */
+section,footer,.page-hero,.contact-layout,.form-layout,.offices-grid,.faq-grid{overflow:hidden;}
+
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.32;}
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;width:100%;z-index:1000;
+  padding:0 40px;display:flex;align-items:center;justify-content:space-between;
+  height:80px;background:rgba(10,10,10,0.85);
+  backdrop-filter:blur(20px);border-bottom:1px solid rgba(212,160,23,0.15);
+  transition:all 0.4s ease;
+}
+nav.scrolled{height:60px;background:rgba(10,10,10,0.97);}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0;}
+.nav-logo-img{height:44px;max-width:180px;width:auto;filter:brightness(1.1);}
+.nav-links{display:flex;align-items:center;gap:2px;}
+.nav-links a{
+  color:var(--white);text-decoration:none;font-family:var(--font-heading);
+  font-size:0.72rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;
+  padding:8px 10px;border-radius:4px;transition:all 0.3s ease;position:relative;overflow:hidden;
+  white-space:nowrap;
+}
+.nav-links a::before{content:'';position:absolute;bottom:0;left:0;width:0;height:1px;background:var(--gold);transition:width 0.3s ease;}
+.nav-links a:hover{color:var(--gold);}
+.nav-links a:hover::before,.nav-links a.active::before{width:100%;}
+.nav-links a.active{color:var(--gold);}
+.nav-cta{background:var(--gold);color:var(--dark)!important;font-weight:700!important;padding:9px 18px!important;border-radius:4px;}
+.nav-cta:hover{background:var(--gold-light)!important;transform:translateY(-1px);}
+.hamburger{
+  display:none;flex-direction:column;justify-content:center;align-items:center;
+  width:40px;height:40px;cursor:pointer;padding:4px;
+  position:relative;flex-shrink:0;z-index:1001;
+}
+.hamburger span{
+  display:block;width:26px;height:2px;background:var(--gold);border-radius:1px;
+  position:absolute;transition:transform 0.35s cubic-bezier(0.23,1,0.32,1),opacity 0.25s ease;transform-origin:center;
+}
+.hamburger span:nth-child(1){transform:translateY(-7px);}
+.hamburger span:nth-child(2){transform:translateY(0);}
+.hamburger span:nth-child(3){transform:translateY(7px);}
+.hamburger.is-open span:nth-child(1){transform:translateY(0) rotate(45deg);}
+.hamburger.is-open span:nth-child(2){opacity:0;transform:scaleX(0);}
+.hamburger.is-open span:nth-child(3){transform:translateY(0) rotate(-45deg);}
+.mobile-menu{
+  display:none;position:fixed;top:80px;left:0;width:100%;
+  background:rgba(10,10,10,0.98);backdrop-filter:blur(20px);
+  padding:30px;flex-direction:column;gap:8px;
+  border-bottom:1px solid rgba(212,160,23,0.2);z-index:999;
+}
+.mobile-menu.open{display:flex;}
+.mobile-menu a{
+  color:var(--white);text-decoration:none;font-family:var(--font-heading);
+  font-size:1rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;
+  padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.07);transition:color 0.3s;
+}
+.mobile-menu a:hover{color:var(--gold);}
+section{position:relative;z-index:1;}
+.section-pad{padding:var(--section-y) var(--pad-x);}
+.section-header{text-align:center;margin-bottom:64px;}
+.section-eyebrow{display:inline-block;font-family:var(--font-heading);font-size:.68rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+.section-title{font-family:var(--font-display);font-size:clamp(2rem,5vw,4.5rem);line-height:1;color:var(--white);letter-spacing:1px;}
+.section-title .gold{color:var(--gold);}
+.section-line{width:56px;height:2px;background:var(--gold);margin:20px auto 0;position:relative;}
+.section-line::before{content:'';position:absolute;left:-28px;top:-2px;width:18px;height:6px;border:2px solid var(--gold);}
+.btn-primary{display:inline-block;text-decoration:none;background:var(--gold);color:var(--dark);font-family:var(--font-heading);font-size:.88rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:14px 38px;border:none;cursor:pointer;border-radius:3px;transition:background .3s,transform .3s,box-shadow .3s;position:relative;overflow:hidden;}
+.btn-primary::before{content:'';position:absolute;inset:0;background:linear-gradient(45deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%);transform:translateX(-100%);transition:transform .5s;}
+.btn-primary:hover::before{transform:translateX(100%);}
+.btn-primary:hover{background:var(--gold-light);transform:translateY(-3px);box-shadow:0 14px 36px rgba(212,160,23,.38);}
+.btn-outline{display:inline-block;text-decoration:none;border:1px solid rgba(212,160,23,.6);color:var(--white);font-family:var(--font-heading);font-size:.88rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:14px 38px;background:transparent;cursor:pointer;border-radius:3px;transition:all .3s;}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);background:rgba(212,160,23,.08);transform:translateY(-3px);}
+.cta-band{padding:90px var(--pad-x);text-align:center;position:relative;overflow:hidden;background:linear-gradient(135deg,var(--dark-3) 0%,#1A1208 100%);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.cta-band::before{content:'';position:absolute;top:50%;left:50%;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(212,160,23,.07) 0%,transparent 70%);transform:translate(-50%,-50%);animation:pulseRing 3s ease-in-out infinite;pointer-events:none;}
+@keyframes pulseRing{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.18)}}
+.cta-title{font-family:var(--font-display);font-size:clamp(2rem,6vw,5.5rem);line-height:1.05;margin-bottom:14px;position:relative;z-index:1;}
+.cta-title .gold{color:var(--gold);}
+.cta-text{color:#888;font-size:clamp(.9rem,2vw,1.05rem);line-height:1.7;margin-bottom:34px;position:relative;z-index:1;}
+.cta-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1;}
+footer{background:var(--dark-2);border-top:1px solid var(--border);padding:76px var(--pad-x) 0;position:relative;z-index:2;overflow:hidden;}
+.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:48px;margin-bottom:52px;}
+.footer-brand p{color:var(--gray);font-family:var(--font-heading);font-size:13px;line-height:1.8;margin-top:14px;max-width:280px;}
+.footer-col h4{font-family:var(--font-heading);font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:16px;font-weight:700;}
+.footer-col ul{list-style:none;display:flex;flex-direction:column;gap:9px;}
+.footer-col a{color:var(--gray);text-decoration:none;font-family:var(--font-heading);font-size:13px;transition:color .3s;}
+.footer-col a:hover{color:var(--gold);}
+.footer-static{color:var(--gray);font-family:var(--font-heading);font-size:13px;display:inline-block;}
+.socials-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+.social-btn{width:38px;height:38px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--gray);text-decoration:none;transition:all .3s;}
+.social-btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(212,160,23,.08);}
+.footer-bottom{border-top:1px solid var(--border);padding:20px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.footer-bottom p{color:var(--gray);font-family:var(--font-heading);font-size:12px;}
+.footer-bottom-links{display:flex;gap:20px;flex-wrap:wrap;}
+.footer-bottom-links a{color:var(--gray);font-family:var(--font-heading);font-size:12px;text-decoration:none;transition:color .3s;}
+.footer-bottom-links a:hover{color:var(--gold);}
+.page-hero{position:relative;min-height:58vh;display:flex;align-items:center;justify-content:center;overflow:hidden;z-index:1;padding-top:var(--nav-h);}
+.page-hero-bg{position:absolute;inset:0;z-index:0;}
+.page-hero-bg img{width:100%;height:100%;object-fit:cover;opacity:.32;position:absolute;inset:0;}
+.page-hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,var(--dark) 100%);}
+.page-hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(212,160,23,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(212,160,23,.05) 1px,transparent 1px);background-size:60px 60px;z-index:1;animation:gridShift 20s linear infinite;}
+@keyframes gridShift{0%{background-position:0 0}100%{background-position:60px 60px}}
+.page-hero-content{position:relative;z-index:2;text-align:center;padding:40px var(--pad-x);}
+.page-eyebrow{font-family:var(--font-heading);font-size:.68rem;font-weight:700;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;display:block;}
+.page-hero h1{font-family:var(--font-display);font-size:clamp(3rem,9vw,7.5rem);line-height:.92;letter-spacing:2px;color:var(--white);}
+.page-hero h1 span{color:var(--gold);}
+.hero-line{overflow:hidden;}
+.breadcrumb{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:18px;font-family:var(--font-heading);font-size:.7rem;color:var(--gray);letter-spacing:2px;}
+.breadcrumb a{color:var(--gold);text-decoration:none;}
+
+/* ── CONTACT-SPECIFIC ── */
+.contact-layout{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start;}
+.intro-text h2{font-family:var(--font-display);font-size:clamp(2rem,5vw,3.8rem);line-height:1.05;color:var(--white);margin-bottom:18px;}
+.intro-text h2 span{color:var(--gold);}
+.intro-text p{color:var(--gray);line-height:1.82;font-size:.93rem;margin-bottom:20px;}
+.intro-badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;}
+.badge{padding:7px 16px;border:1px solid var(--border);font-family:var(--font-heading);font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);}
+.quick-contacts{display:flex;flex-direction:column;gap:20px;}
+.qitem{display:flex;gap:18px;align-items:flex-start;padding:22px;border:1px solid var(--border);background:var(--dark-2);transition:border-color .3s,transform .3s;}
+.qitem:hover{border-color:var(--gold);transform:translateX(4px);}
+.qicon{width:42px;height:42px;background:var(--gold);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:17px;}
+.qinfo h4{font-family:var(--font-heading);font-size:.82rem;letter-spacing:2px;text-transform:uppercase;color:var(--white);margin-bottom:5px;font-weight:700;}
+.qinfo p,.qinfo a{color:var(--gray);font-size:.85rem;line-height:1.6;text-decoration:none;transition:color .3s;}
+.qinfo a:hover{color:var(--gold);}
+/* FORM */
+.form-layout{display:grid;grid-template-columns:1.2fr 1fr;gap:72px;align-items:start;}
+.form-wrap{background:var(--dark-2);border:1px solid var(--border);padding:48px 44px;}
+.form-title{font-family:var(--font-display);font-size:clamp(1.8rem,3.5vw,2.8rem);color:var(--white);margin-bottom:6px;}
+.form-sub{color:var(--gray);font-family:var(--font-heading);font-size:.78rem;margin-bottom:32px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+.form-group{display:flex;flex-direction:column;gap:7px;margin-bottom:18px;}
+.form-group label{font-family:var(--font-heading);font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--gray);}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--dark-3);border:1px solid var(--border);color:var(--white);padding:13px 16px;font-family:var(--font-body);font-size:15px;outline:none;transition:border-color .3s;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--gold);}
+.form-group select option{background:var(--dark-3);}
+.form-group textarea{resize:vertical;min-height:120px;}
+.form-submit{background:var(--gold);color:#000;border:none;padding:15px 40px;font-family:var(--font-heading);font-size:.88rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;cursor:pointer;width:100%;transition:background .3s,transform .2s;}
+.form-submit:hover{background:var(--gold-light);transform:translateY(-2px);}
+.form-note{font-family:var(--font-heading);color:var(--gray);font-size:.7rem;margin-top:10px;text-align:center;}
+.form-alert{display:none;padding:12px 15px;margin-bottom:20px;font-family:var(--font-heading);font-size:.78rem;line-height:1.5;}
+.form-alert.show{display:block;}
+.form-alert.error{background:rgba(229,83,83,.1);border:1px solid rgba(229,83,83,.35);color:#E55353;}
+.field-error{border-color:#E55353!important;animation:shake .35s ease;}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+/* SIDE CARDS */
+.side-cards{display:flex;flex-direction:column;gap:24px;}
+.side-card{padding:28px;border:1px solid var(--border);background:var(--dark-2);}
+.side-card h3{font-family:var(--font-heading);font-size:.88rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;font-weight:700;}
+.side-card p,.side-card li{color:var(--gray);font-size:.85rem;line-height:1.8;}
+.side-card ul{list-style:none;display:flex;flex-direction:column;gap:7px;}
+.side-card li::before{content:"→ ";color:var(--gold);}
+.rt-list{display:flex;flex-direction:column;gap:10px;}
+.rt-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+.rt-item:last-child{border-bottom:none;}
+.rt-label{font-family:var(--font-heading);font-size:.78rem;color:var(--gray);}
+.rt-val{font-family:var(--font-heading);font-size:.82rem;font-weight:700;color:var(--gold);}
+/* OFFICES */
+.offices-bg{background:var(--dark-2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.offices-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.office-card{padding:32px 24px;border:1px solid var(--border);background:var(--dark-3);transition:border-color .4s,transform .4s;}
+.office-card:hover{border-color:var(--gold);transform:translateY(-5px);}
+.office-flag{font-size:26px;margin-bottom:12px;}
+.office-country{font-family:var(--font-display);font-size:1.6rem;color:var(--gold);letter-spacing:2px;margin-bottom:3px;}
+.office-city{font-family:var(--font-heading);font-size:.72rem;letter-spacing:3px;text-transform:uppercase;color:var(--gray);margin-bottom:16px;}
+.office-details{display:flex;flex-direction:column;gap:8px;}
+.office-detail{display:flex;gap:9px;align-items:flex-start;font-family:var(--font-heading);font-size:.78rem;color:var(--gray);line-height:1.5;}
+.office-detail span:first-child{color:var(--gold);flex-shrink:0;}
+.office-tag{display:inline-block;padding:3px 10px;background:rgba(212,160,23,.1);border:1px solid var(--border);font-family:var(--font-heading);font-size:.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-top:13px;}
+/* MAP */
+.map-wrap{position:relative;height:440px;border:1px solid var(--border);overflow:hidden;background:var(--dark-2);}
+.map-img{width:100%;height:100%;object-fit:cover;filter:brightness(.4) sepia(.3);}
+.map-pins{position:absolute;inset:0;}
+.pin{position:absolute;display:flex;flex-direction:column;align-items:center;cursor:pointer;}
+.pin-dot{width:13px;height:13px;background:var(--gold);border-radius:50%;border:2px solid #000;position:relative;animation:pp 2s ease-in-out infinite;}
+.pin-dot::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--gold);animation:pr 2s ease-in-out infinite;}
+@keyframes pp{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+@keyframes pr{0%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(2.4)}}
+.pin-label{background:var(--gold);color:#000;font-family:var(--font-heading);font-size:.65rem;letter-spacing:2px;text-transform:uppercase;padding:3px 7px;margin-top:5px;white-space:nowrap;font-weight:700;}
+/* FAQ */
+.faq-bg{background:var(--dark-2);}
+.faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:940px;margin:0 auto;}
+.faq-item{border:1px solid var(--border);background:var(--dark-3);overflow:hidden;}
+.faq-q{padding:22px 26px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:background .3s;}
+.faq-q:hover{background:rgba(212,160,23,.04);}
+.faq-q h4{font-family:var(--font-heading);font-size:.9rem;letter-spacing:.5px;color:var(--white);font-weight:600;}
+.faq-toggle{font-size:18px;color:var(--gold);font-weight:300;transition:transform .3s;flex-shrink:0;margin-left:14px;}
+.faq-item.open .faq-toggle{transform:rotate(45deg);}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease;}
+.faq-a p{padding:0 26px 22px;color:var(--gray);font-size:.85rem;line-height:1.8;}
+.faq-item.open .faq-a{max-height:280px;}
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(6px);z-index:2000;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--dark-2);border:1px solid var(--border);padding:44px 36px;max-width:420px;width:100%;text-align:center;position:relative;animation:mIn .35s cubic-bezier(.34,1.56,.64,1);max-height:90vh;overflow-y:auto;}
+@keyframes mIn{from{opacity:0;transform:scale(.9) translateY(14px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-close{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--gray);font-size:18px;cursor:pointer;transition:color .3s;}
+.modal-close:hover{color:var(--white);}
+.modal-icon{font-size:46px;margin-bottom:14px;display:block;}
+.modal-title{font-family:var(--font-display);font-size:1.9rem;color:var(--white);margin-bottom:10px;}
+.modal-desc{color:var(--gray);font-size:.85rem;line-height:1.7;margin-bottom:24px;}
+.modal-desc strong{color:var(--gold);}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — ALL BREAKPOINTS
+   ══════════════════════════════════════════ */
+
+/* Large screens */
+@media(max-width:1280px){
+  :root{--pad-x:44px;--section-y:88px;}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:32px;}
+}
+
+/* Tablets landscape */
+@media(max-width:1023px){
+  :root{--pad-x:32px;--section-y:76px;}
+  nav{padding:0 var(--pad-x);}
+  .nav-links{display:none;}
+  .hamburger{display:flex;}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:28px;}
+  .contact-layout{grid-template-columns:1fr;gap:48px;}
+  .form-layout{grid-template-columns:1fr;gap:48px;}
+  .offices-grid{grid-template-columns:repeat(2,1fr);}
+  /* Disable horizontal slide animations to prevent overflow at this size */
+  .reveal-left,.reveal-right{transform:translateY(30px);}
+}
+
+/* Tablets portrait */
+@media(max-width:768px){
+  :root{--nav-h:62px;--pad-x:20px;--section-y:60px;}
+  nav{padding:0 var(--pad-x);height:var(--nav-h);}
+  nav.scrolled{height:52px;}
+  .nav-logo-img{height:32px;max-width:130px;}
+  .mobile-menu{top:var(--nav-h);padding:16px var(--pad-x) 24px;}
+  .page-hero{min-height:50vh;}
+  .page-hero h1{font-size:clamp(2.4rem,11vw,4.5rem);}
+  .page-hero-content{padding:32px var(--pad-x);}
+  .section-header{margin-bottom:44px;}
+  .section-title{font-size:clamp(1.8rem,8vw,2.8rem);}
+  .cta-band{padding:64px var(--pad-x);}
+  .cta-title{font-size:clamp(1.8rem,8.5vw,3rem);}
+  .cta-buttons{flex-direction:column;align-items:center;gap:12px;}
+  .cta-buttons .btn-primary,.cta-buttons .btn-outline{width:100%;max-width:260px;text-align:center;padding:13px 18px;}
+  footer{padding:52px var(--pad-x) 0;}
+  .footer-grid{grid-template-columns:1fr;gap:28px;}
+  .footer-brand p{max-width:100%;}
+  .footer-bottom{flex-direction:column;text-align:center;gap:8px;}
+  .footer-bottom-links{justify-content:center;gap:14px;}
+  .socials-row{gap:8px;}
+  /* Form */
+  .form-row{grid-template-columns:1fr;}
+  .form-wrap{padding:32px 20px;}
+  .form-title{font-size:clamp(1.5rem,6vw,2rem);}
+  .form-group input,.form-group select,.form-group textarea{font-size:16px;padding:12px 14px;}
+  /* Offices / FAQ / Map */
+  .offices-grid{grid-template-columns:1fr;}
+  .faq-grid{grid-template-columns:1fr;}
+  .map-wrap{height:300px;}
+  /* Intro */
+  .intro-text h2{font-size:clamp(1.8rem,7.5vw,2.6rem);}
+  /* Contact layout single-col */
+  .contact-layout{grid-template-columns:1fr;gap:36px;}
+  .form-layout{grid-template-columns:1fr;gap:36px;}
+  /* Modal */
+  .modal-box{padding:32px 20px;}
+  .modal-title{font-size:1.6rem;}
+  /* Disable ALL directional reveals — use simple fade+translateY only */
+  .reveal-left,.reveal-right{transform:translateY(24px);}
+}
+.field-error-msg{color:#E55353;font-size:.72rem;margin-top:5px;font-family:var(--font-heading);display:none;}
+.field-error-msg.show{display:block;}
+/* Mobile */
+@media(max-width:576px){
+  :root{--pad-x:16px;--section-y:50px;}
+  .page-hero h1{font-size:clamp(2rem,12vw,3.5rem);}
+  .cta-title{font-size:clamp(1.6rem,9vw,2.6rem);}
+  .cta-buttons .btn-primary,.cta-buttons .btn-outline{max-width:240px;}
+  .form-wrap{padding:24px 16px;}
+  .intro-badges{gap:8px;}
+  .badge{padding:6px 12px;font-size:.66rem;}
+  .qitem{padding:16px;gap:14px;}
+  .qicon{width:36px;height:36px;font-size:15px;}
+  .office-card{padding:24px 18px;}
+  .office-country{font-size:1.3rem;}
+  .modal-title{font-size:1.4rem;}
+  .modal-icon{font-size:40px;}
+  /* Fully disable horizontal animations on small screens */
+  .reveal-left,.reveal-right{transform:translateY(20px);}
+}
+
+/* Extra small */
+@media(max-width:400px){
+  :root{--pad-x:14px;}
+  .nav-logo-img{height:26px;max-width:110px;}
+  .page-hero h1{font-size:clamp(1.8rem,13vw,2.8rem);}
+  .footer-bottom-links{flex-direction:column;gap:6px;align-items:center;}
+  .social-btn{width:34px;height:34px;}
+  .reveal-left,.reveal-right{transform:translateY(16px);}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;animation-iteration-count:1!important;}
+  .reveal,.reveal-left,.reveal-right,.reveal-scale{opacity:1;transform:none;}
+}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<nav id="navbar">
+  <a href="index.html" class="nav-logo">
+    <img src="./assets/stackly-removebg-preview.webp" alt="STACKLY" class="nav-logo-img">
+  </a>
+  <div class="nav-links">
+    <a href="index.html" >Home</a>
+    <a href="./about.html">About</a>
+    <a href="./services.html">Services</a>
+    <a href="./projects.html">Projects</a>
+    <a href="./blog.html">Blog</a>
+    <a href="./contact.html" class="active">Contact</a>
+    <a href="./login.html" class="nav-cta">Login</a>
+  </div>
+  <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Home</a>
+  <a href="./about.html">About</a>
+  <a href="./services.html">Services</a>
+  <a href="./projects.html">Projects</a>
+  <a href="blog.html">Blog</a>
+  <a href="./contact.html">Contact</a>
+  <a href="login.html">Login</a>
+</div>
+
+<section class="page-hero">
+  <div class="page-hero-bg"><img src="https://images.unsplash.com/photo-1536939459926-301a346faa4d?w=1920&q=90" alt="Contact"></div>
+  <div class="page-hero-overlay"></div><div class="page-hero-grid"></div>
+  <div class="page-hero-content">
+    <div class="page-eyebrow hero-line" id="ey1">Get In Touch</div>
+    <h1><div class="hero-line" id="ht1">CONTACT</div><div class="hero-line" id="ht2"><span>STACKLY</span></div></h1> <br>
+    <div class="breadcrumb"><a href="index.html">Home</a> / <span>Contact</span></div>
+  </div>
+</section>
+
+<!-- CONTACT INTRO -->
+<section class="section-pad">
+  <div class="contact-layout">
+    <div class="intro-text reveal-left">
+      <h2>LET'S BUILD<br><span>TOGETHER</span></h2>
+      <p>Whether you're planning a new mining operation, seeking technical consultation, or looking for a long-term operational partner — our team of experts is ready to discuss your project needs with full confidentiality and commitment.</p>
+      <p>With offices on four continents and decades of field experience, STACKLY provides on-site support wherever your operations take you.</p>
+      <div class="intro-badges">
+        <span class="badge">24/7 Support</span><span class="badge">Global Reach</span>
+        <span class="badge">NDA Available</span><span class="badge">Free Consultation</span>
+      </div>
+    </div>
+    <div class="quick-contacts reveal-right">
+      <div class="qitem"><div class="qicon">📞</div><div class="qinfo"><h4>Call Us</h4><p><a href="./error.html">+91 98765 43210</a> — Salem HQ</p><p><a href="./error.html">+61 8 9123 4567</a> — Perth Office</p></div></div>
+      <div class="qitem"><div class="qicon">✉️</div><div class="qinfo"><h4>Email Us</h4><p><a href="./error.html">info@stackly.com</a> — General</p><p><a href="./error.html">projects@stackly.com</a> — Projects</p></div></div>
+      <div class="qitem"><div class="qicon">📍</div><div class="qinfo"><h4>Headquarters</h4><p>MMR Complex, Salem, Tamil Nadu, India</p></div></div>
+      <div class="qitem"><div class="qicon">🕐</div><div class="qinfo"><h4>Business Hours</h4><p>Mon–Fri: 8:00 AM – 6:00 PM IST<br>Emergency line available 24/7</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FORM -->
+<section class="section-pad" style="background:var(--dark-2);padding-top:0;">
+  <div class="form-layout">
+    <div class="form-wrap reveal">
+      <h2 class="form-title">SEND A MESSAGE</h2>
+      <p class="form-sub">We respond to all enquiries within 24 business hours.</p>
+      <form id="contactForm" novalidate onsubmit="return false;">
+        <div id="form-alert" class="form-alert" role="alert" aria-live="polite"></div>
+        <div class="form-row">
+          <div class="form-group">
+  <label for="cf-fname">First Name *</label>
+  <input type="text" id="cf-fname" placeholder="John" autocomplete="given-name"
+    oninput="textOnly(this);validateForm()" onpaste="pastTextOnly(event,this)">
+  <span class="field-error-msg" id="cf-fname-err">First name is required.</span>
+</div>
+
+<div class="form-group">
+  <label for="cf-lname">Last Name *</label>
+  <input type="text" id="cf-lname" placeholder="Smith" autocomplete="family-name"
+    oninput="textOnly(this);validateForm()" onpaste="pastTextOnly(event,this)">
+  <span class="field-error-msg" id="cf-lname-err">Last name is required.</span>
+</div>
+
+<div class="form-group">
+  <label for="cf-email">Email Address *</label>
+  <input type="email" id="cf-email" placeholder="john@company.com" autocomplete="email"
+    oninput="validateForm()">
+  <span class="field-error-msg" id="cf-email-err">Please enter a valid email address.</span>
+</div>
+        </div>
+        <div class="form-group">
+          <label for="cf-company">Company / Organization</label>
+          <input type="text" id="cf-company" placeholder="Your Company Name" autocomplete="organization"
+            oninput="textOnly(this)" onpaste="pastTextOnly(event,this)">
+        </div>
+        <div class="form-group">
+          <label for="cf-type">Project Type</label>
+          <select id="cf-type" onchange="validateForm()">
+            <option value="">Select a project type...</option>
+            <option>Surface Mining Operations</option>
+            <option>Underground Mining</option>
+            <option>Mineral Processing Plant</option>
+            <option>Geological Survey</option>
+            <option>Equipment &amp; Fleet</option>
+            <option>Environmental Compliance</option>
+            <option>General Inquiry</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="cf-location">Project Location</label>
+          <input type="text" id="cf-location" placeholder="Country / Region"
+            oninput="textOnly(this)" onpaste="pastTextOnly(event,this)">
+        </div>
+<div class="form-group">
+  <label for="cf-message">Message *</label>
+  <textarea id="cf-message" placeholder="Describe your project, timeline, budget range, and any specific requirements..."
+    oninput="textOnly(this);validateForm()" onpaste="pastTextOnly(event,this)"></textarea>
+  <span class="field-error-msg" id="cf-message-err">Please tell us about your project.</span>
+</div>
+      <button type="button" id="cf-submit" class="form-submit" onclick="handleSubmit()">Send Message →</button>
+        <p class="form-note">Your information is kept confidential and protected under our privacy policy.</p>
+      </form>
+    </div>
+    <div class="side-cards reveal-right">
+      <div class="side-card"><h3>What Happens Next</h3><ul>
+        <li>Your enquiry is reviewed by our projects team</li>
+        <li>A senior consultant is assigned to your case</li>
+        <li>Initial response within 24 business hours</li>
+        <li>Discovery call scheduled within 48 hours</li>
+        <li>Detailed proposal within 5–7 business days</li>
+      </ul></div>
+      <div class="side-card"><h3>Response Times</h3><div class="rt-list">
+        <div class="rt-item"><span class="rt-label">General Inquiries</span><span class="rt-val">24 hrs</span></div>
+        <div class="rt-item"><span class="rt-label">Project Proposals</span><span class="rt-val">48 hrs</span></div>
+        <div class="rt-item"><span class="rt-label">Technical Support</span><span class="rt-val">4 hrs</span></div>
+        <div class="rt-item"><span class="rt-label">Emergency Line</span><span class="rt-val">1 hr</span></div>
+      </div></div>
+      <div class="side-card"><h3>Media Inquiries</h3><p>For press releases, media kits, and journalist inquiries please contact our communications team directly.</p><p style="margin-top:10px"><a href="./error.html" style="color:var(--gold)">media@stackly.com</a></p></div>
+    </div>
+  </div>
+</section>
+
+<!-- OFFICES -->
+<section class="section-pad offices-bg">
+  <div class="section-header reveal">
+    <span class="section-eyebrow">Our Locations</span>
+    <h2 class="section-title">GLOBAL <span class="gold">OFFICES</span></h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="offices-grid">
+    <div class="office-card reveal"><div class="office-flag">🇮🇳</div><div class="office-country">INDIA</div><div class="office-city">Salem, Tamil Nadu — HQ</div><div class="office-details"><div class="office-detail"><span>📍</span><span>MMR Complex, Salem, Tamil Nadu</span></div><div class="office-detail"><span>📞</span><span>+91 98765 43210</span></div><div class="office-detail"><span>✉️</span><span>info@stackly.com</span></div></div><span class="office-tag">HQ</span></div>
+    <div class="office-card reveal"><div class="office-flag">🇦🇺</div><div class="office-country">AUSTRALIA</div><div class="office-city">Perth — Pacific Hub</div><div class="office-details"><div class="office-detail"><span>📍</span><span>Level 32, Exchange Tower, Perth WA 6000</span></div><div class="office-detail"><span>📞</span><span>+61 8 9123 4567</span></div><div class="office-detail"><span>✉️</span><span>perth@stackly.com</span></div></div><span class="office-tag">Pacific Hub</span></div>
+    <div class="office-card reveal"><div class="office-flag">🇿🇦</div><div class="office-country">SOUTH AFRICA</div><div class="office-city">Johannesburg — Africa Hub</div><div class="office-details"><div class="office-detail"><span>📍</span><span>10 Sandton Drive, Sandton, 2196</span></div><div class="office-detail"><span>📞</span><span>+27 11 555 0123</span></div><div class="office-detail"><span>✉️</span><span>jhb@stackly.com</span></div></div><span class="office-tag">Africa Hub</span></div>
+    <div class="office-card reveal"><div class="office-flag">🇬🇧</div><div class="office-country">UNITED KINGDOM</div><div class="office-city">London — Europe Office</div><div class="office-details"><div class="office-detail"><span>📍</span><span>30 St Mary Axe, London EC3A 8BF</span></div><div class="office-detail"><span>📞</span><span>+44 20 7946 0958</span></div><div class="office-detail"><span>✉️</span><span>london@stackly.com</span></div></div><span class="office-tag">Europe Hub</span></div>
+  </div>
+</section>
+
+<!-- MAP -->
+<section class="section-pad">
+  <div class="section-header reveal" style="text-align:left;margin-bottom:28px;">
+    <span class="section-eyebrow">Find Us</span>
+    <h2 class="section-title">WHERE WE <span class="gold">OPERATE</span></h2>
+  </div>
+  <div class="map-wrap reveal">
+    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3907.1616098770783!2d78.171404875102!3d11.682956588526347!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3babefef7fd970bb%3A0xe11aef1a71994f9!2sStackly!5e0!3m2!1sen!2sin!4v1782730708905!5m2!1sen!2sin" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" title="STACKLY Office Location Map"></iframe>
+    <div class="map-pins">
+
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section-pad faq-bg">
+  <div class="section-header reveal">
+    <span class="section-eyebrow">Common Questions</span>
+    <h2 class="section-title">FAQ <span class="gold">CONTACT</span></h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="faq-grid">
+    <div class="faq-item reveal"><div class="faq-q"><h4>How quickly do you respond to inquiries?</h4><span class="faq-toggle">+</span></div><div class="faq-a"><p>All general inquiries receive an initial response within 24 business hours. For urgent technical or operational matters, our emergency line is available around the clock with a guaranteed 1-hour response time.</p></div></div>
+    <div class="faq-item reveal"><div class="faq-q"><h4>Do you sign NDAs before project discussions?</h4><span class="faq-toggle">+</span></div><div class="faq-a"><p>Absolutely. We routinely sign mutual NDAs before discussing any project details. Our legal team can prepare a standard NDA within 24 hours, or we're happy to review your preferred template.</p></div></div>
+    <div class="faq-item reveal"><div class="faq-q"><h4>What information should I include in my inquiry?</h4><span class="faq-toggle">+</span></div><div class="faq-a"><p>Helpful details include the project location, commodity type, estimated scale of operations, project timeline, and budget range. Don't worry if you don't have all the details — we'll work through the requirements together during the discovery call.</p></div></div>
+    <div class="faq-item reveal"><div class="faq-q"><h4>Can you work on projects outside your listed countries?</h4><span class="faq-toggle">+</span></div><div class="faq-a"><p>Yes. While we have established offices in India, Australia, South Africa, and the UK, our project teams operate globally. We have completed projects in over 22 countries and can mobilise rapidly to new locations.</p></div></div>
+    <div class="faq-item reveal"><div class="faq-q"><h4>Do you offer feasibility studies for new projects?</h4><span class="faq-toggle">+</span></div><div class="faq-a"><p>Yes. Feasibility studies are a core part of our pre-project services. We conduct scoping, pre-feasibility, and bankable feasibility studies aligned with JORC, NI 43-101, and SAMREC standards.</p></div></div>
+    <div class="faq-item reveal"><div class="faq-q"><h4>What is the typical timeline for a project proposal?</h4><span class="faq-toggle">+</span></div><div class="faq-a"><p>Following an initial discovery call, we typically deliver a detailed technical and commercial proposal within 5–7 business days for standard engagements. Complex multi-phase proposals may take up to 15 business days.</p></div></div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <h2 class="cta-title reveal">READY TO START <span class="gold">YOUR PROJECT?</span></h2>
+  <p class="cta-text reveal">Join over 120 companies that trust STACKLY with their most critical mining operations.</p>
+  <div class="cta-buttons reveal">
+    <a href="error.html" class="btn-primary">Call Us Now</a>
+    <a href="error.html" class="btn-outline">Download Company Profile</a>
+  </div>
+</section>
+
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <img src="./assets/stackly-removebg-preview.webp" alt="STACKLY" style="height:32px;filter:brightness(1.1);">
+      <p>STACKLY Mining &amp; Industry — powering the world's most critical resources with 25+ years of engineering excellence, safety leadership, and sustainable operations across 48 countries.</p>
+      <div class="socials-row">
+        <a href="error.html" class="social-btn" title="X"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622Zm-1.161 17.52h1.833L7.084 4.126H5.117Z"/></svg></a>
+        <a href="error.html" class="social-btn" title="Facebook"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+        <a href="error.html" class="social-btn" title="LinkedIn"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+        <a href="error.html" class="social-btn" title="YouTube"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="index.html">→ Home</a></li>
+        <li><a href="about.html">→ About Us</a></li>
+        <li><a href="services.html">→ Services</a></li>
+        <li><a href="projects.html">→ Projects</a></li>
+        <li><a href="blog.html">→ News &amp; Blog</a></li>
+        <li><a href="contact.html">→ Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="error.html">→ Surface Mining</a></li>
+        <li><a href="error.html">→ Underground Mining</a></li>
+        <li><a href="error.html">→ Mineral Processing</a></li>
+        <li><a href="error.html">→ Geological Surveys</a></li>
+        <li><a href="error.html">→ Mine Automation</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <ul>
+        <li><span class="footer-static">📍 MMR Complex, Salem, Tamil Nadu</span></li>
+        <li><a href="./error.html">📞 +91 98765 43210</a></li>
+        <li><a href="./error.html">✉ info@stackly.com</a></li>
+        <li><span class="footer-static">🕐 Mon–Fri 08:00–18:00 IST</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 STACKLY Mining &amp; Industry. All rights reserved.</p>
+    <div class="footer-bottom-links">
+      <a href="error.html">Privacy Policy</a>
+      <a href="error.html">Terms of Use</a>
+      <a href="error.html">Sitemap</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+const canvas=document.getElementById("bg-canvas");
+const ctx=canvas.getContext("2d");
+let pts=[];
+function rsz(){canvas.width=innerWidth;canvas.height=innerHeight;}rsz();
+window.addEventListener("resize",rsz);
+class P{constructor(){this.r();}r(){this.x=Math.random()*canvas.width;this.y=Math.random()*canvas.height;this.vx=(Math.random()-.5)*.4;this.vy=(Math.random()-.5)*.4;this.s=Math.random()*1.3+.3;this.a=Math.random()*.44+.1;this.c=Math.random()>.7?"#D4A017":"#fff";}
+u(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>canvas.width||this.y<0||this.y>canvas.height)this.r();}
+d(){ctx.beginPath();ctx.arc(this.x,this.y,this.s,0,Math.PI*2);ctx.fillStyle=this.c;ctx.globalAlpha=this.a;ctx.fill();}}
+for(let i=0;i<110;i++)pts.push(new P());
+function ac(){ctx.clearRect(0,0,canvas.width,canvas.height);pts.forEach(p=>{p.u();p.d();});ctx.globalAlpha=1;
+for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<100){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(212,160,23,${(1-d/100)*.12})`;ctx.lineWidth=.5;ctx.stroke();}}requestAnimationFrame(ac);}ac();
+window.addEventListener("scroll",()=>{document.getElementById("navbar").classList.toggle("scrolled",scrollY>80);});
+function toggleMenu(){document.getElementById("mobileMenu").classList.toggle("open");document.getElementById("hamburger").classList.toggle("is-open");}
+
+/* ── GSAP SCROLL REVEAL ── 
+   On mobile (<= 1024px) we convert left/right reveals to simple vertical
+   reveals to prevent horizontal overflow from ever occurring.             */
+function setupReveal() {
+  const isMobile = window.innerWidth <= 1024;
+
+  gsap.utils.toArray('.reveal').forEach(el => {
+    gsap.fromTo(el,{opacity:0,y:44},{opacity:1,y:0,duration:.85,ease:'power3.out',
+      scrollTrigger:{trigger:el,start:'top 88%',toggleActions:'play none none none'}});
+  });
+
+  gsap.utils.toArray('.reveal-left').forEach(el => {
+    const from = isMobile ? {opacity:0,y:30,x:0} : {opacity:0,x:-60,y:0};
+    const to   = {opacity:1,x:0,y:0,duration:.85,ease:'power3.out',
+      scrollTrigger:{trigger:el,start:'top 88%',toggleActions:'play none none none'}};
+    gsap.fromTo(el,from,to);
+  });
+
+  gsap.utils.toArray('.reveal-right').forEach(el => {
+    const from = isMobile ? {opacity:0,y:30,x:0} : {opacity:0,x:60,y:0};
+    const to   = {opacity:1,x:0,y:0,duration:.85,ease:'power3.out',
+      scrollTrigger:{trigger:el,start:'top 88%',toggleActions:'play none none none'}};
+    gsap.fromTo(el,from,to);
+  });
+
+  gsap.utils.toArray('.reveal-scale').forEach(el => {
+    gsap.fromTo(el,{opacity:0,scale:.85},{opacity:1,scale:1,duration:.85,ease:'power3.out',
+      scrollTrigger:{trigger:el,start:'top 88%',toggleActions:'play none none none'}});
+  });
+}
+setupReveal();
+</script>
+<script>
+const tl=gsap.timeline({delay:.2});
+tl.fromTo('#ey1',{opacity:0,y:24},{opacity:1,y:0,duration:.65})
+  .fromTo('#ht1',{opacity:0,y:64,skewY:4},{opacity:1,y:0,skewY:0,duration:.85,ease:'power4.out'},'-=.2')
+  .fromTo('#ht2',{opacity:0,y:64,skewY:4},{opacity:1,y:0,skewY:0,duration:.85,ease:'power4.out'},'-=.6');
+</script>
+<script>
+document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',()=>q.parentElement.classList.toggle('open')));
+function validEmail(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);}
+function markErr(id){const el=document.getElementById(id);if(!el)return;el.classList.remove('field-error');void el.offsetWidth;el.classList.add('field-error');}
+
+/* ── Input restrictions ── */
+// Text-only fields: block digit keys
+['cf-fname','cf-lname','cf-company','cf-location'].forEach(id=>{
+  const el=document.getElementById(id);if(!el)return;
+  el.addEventListener('keypress',e=>{if(/[0-9]/.test(e.key))e.preventDefault();});
+  el.addEventListener('input',()=>{el.value=el.value.replace(/[0-9]/g,'');el.classList.remove('field-error');});
+});
+// Phone field: numbers only
+const phoneEl=document.getElementById('cf-phone');
+if(phoneEl){
+  phoneEl.addEventListener('keypress',e=>{if(!/[0-9+\-\s()]/.test(e.key))e.preventDefault();});
+  phoneEl.addEventListener('input',()=>{phoneEl.value=phoneEl.value.replace(/[^0-9+\-\s()]/g,'');});
+}
+// Message textarea: allow all but clear error on input
+document.querySelectorAll('#contactForm input,#contactForm select,#contactForm textarea').forEach(el=>el.addEventListener('input',()=>{el.classList.remove('field-error');checkFormReady();}));
+
+/* ── Live button enable/disable ── */
+
+function checkFormReady(){
+  const fn=document.getElementById('cf-fname').value.trim();
+  const ln=document.getElementById('cf-lname').value.trim();
+  const em=document.getElementById('cf-email').value.trim();
+  const msg=document.getElementById('cf-message').value.trim();
+  const ready=fn&&ln&&validEmail(em)&&msg;
+  submitBtn.disabled=!ready;
+  submitBtn.style.opacity=ready?'1':'0.5';
+  submitBtn.style.cursor=ready?'pointer':'not-allowed';
+}
+checkFormReady();
+
+function handleSubmit(e){
+  e.preventDefault();
+  const fn=document.getElementById('cf-fname').value.trim();
+  const ln=document.getElementById('cf-lname').value.trim();
+  const em=document.getElementById('cf-email').value.trim();
+  const msg=document.getElementById('cf-message').value.trim();
+  const errs=[];
+  if(!fn)errs.push('cf-fname');if(!ln)errs.push('cf-lname');
+  if(!em||!validEmail(em))errs.push('cf-email');if(!msg)errs.push('cf-message');
+  const alertEl=document.getElementById('form-alert');
+  if(errs.length){errs.forEach(markErr);alertEl.textContent='Please fill in all required fields with a valid email address.';alertEl.className='form-alert error show';alertEl.scrollIntoView({behavior:'smooth',block:'center'});return;}
+  alertEl.className='form-alert';
+  // Redirect to error page after successful submission
+  document.getElementById('contactForm').reset();
+  window.location.href='error.html';
+}
+function closeModal(){document.getElementById('success-modal').classList.remove('open');document.getElementById('cf-fname').focus();}
+document.getElementById('modal-close').addEventListener('click',closeModal);
+document.getElementById('modal-ok').addEventListener('click',closeModal);
+document.getElementById('success-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+
+function validEmail(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);}
+function markErr(id){const el=document.getElementById(id);if(!el)return;el.classList.remove('field-error');void el.offsetWidth;el.classList.add('field-error');}
+function showFieldErr(id){const e=document.getElementById(id+'-err');if(e)e.classList.add('show');}
+function hideFieldErr(id){const e=document.getElementById(id+'-err');if(e)e.classList.remove('show');}
+
+/* live per-field feedback as user types */
+function checkFormReady(){
+  const fn=document.getElementById('cf-fname').value.trim();
+  const ln=document.getElementById('cf-lname').value.trim();
+  const em=document.getElementById('cf-email').value.trim();
+  const msg=document.getElementById('cf-message').value.trim();
+
+  fn ? hideFieldErr('cf-fname') : null;
+  ln ? hideFieldErr('cf-lname') : null;
+  msg ? hideFieldErr('cf-message') : null;
+
+  if(em.length===0){ hideFieldErr('cf-email'); document.getElementById('cf-email').classList.remove('field-error'); }
+  else if(validEmail(em)){ hideFieldErr('cf-email'); document.getElementById('cf-email').classList.remove('field-error'); }
+  else{ showFieldErr('cf-email'); document.getElementById('cf-email').classList.add('field-error'); }
+}
+checkFormReady();
+
+/* renamed from validateForm() to keep existing input handlers working */
+function validateForm(){ checkFormReady(); }
+
+function handleSubmit(){
+  const fn=document.getElementById('cf-fname').value.trim();
+  const ln=document.getElementById('cf-lname').value.trim();
+  const em=document.getElementById('cf-email').value.trim();
+  const msg=document.getElementById('cf-message').value.trim();
+  const errs=[];
+
+  if(!fn){errs.push('cf-fname');showFieldErr('cf-fname');}
+  if(!ln){errs.push('cf-lname');showFieldErr('cf-lname');}
+  if(!em||!validEmail(em)){errs.push('cf-email');showFieldErr('cf-email');}
+  if(!msg){errs.push('cf-message');showFieldErr('cf-message');}
+
+  const alertEl=document.getElementById('form-alert');
+  if(errs.length){
+    errs.forEach(markErr);
+    alertEl.textContent='Please fix the highlighted fields before submitting.';
+    alertEl.className='form-alert error show';
+    alertEl.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  alertEl.className='form-alert';
+  document.getElementById('contactForm').reset();
+  window.location.href='error.html';
+}
+</script>
+</body></html>

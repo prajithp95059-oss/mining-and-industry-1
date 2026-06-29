@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — STACKLY Mining & Industry</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Montserrat:wght@300;400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#D4A017;--gold-light:#F5C842;--dark:#0A0A0A;--dark-2:#111111;
+  --dark-3:#1A1A1A;--dark-4:#222;--white:#F0EDE8;--gray:#888;
+  --border:rgba(212,160,23,0.18);--error:#E55353;--success:#4CAF82;
+  --font-display:'Playfair Display',serif;
+  --font-heading:'Montserrat',sans-serif;
+  --font-body:'Rajdhani',sans-serif;
+}
+html,body{height:100%}
+body{background:var(--dark);color:var(--white);font-family:var(--font-heading);overflow-x:hidden;min-height:100vh}
+canvas#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.45}
+
+/* ── LAYOUT ── */
+.login-layout{display:grid;grid-template-columns:1.1fr 1fr;min-height:100vh;position:relative;z-index:1}
+
+/* ── LEFT PANEL ── */
+.left-panel{position:relative;overflow:hidden;display:flex;flex-direction:column}
+.left-bg{position:absolute;inset:0;background-image:url('https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1600&q=90');background-size:cover;background-position:center}
+.left-overlay{position:absolute;inset:0;background:linear-gradient(160deg,rgba(5,5,5,.88) 0%,rgba(10,10,10,.72) 50%,rgba(0,0,0,.92) 100%)}
+.left-content{position:relative;z-index:2;display:flex;flex-direction:column;height:100%;padding:44px 52px;justify-content:space-between}
+
+/* Logo */
+.left-logo a{display:inline-flex;align-items:center;gap:12px;text-decoration:none}
+.left-logo img{height:42px;filter:brightness(1.15)}
+.logo-divider{width:1px;height:32px;background:var(--border)}
+.logo-label{font-family:var(--font-body);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gray)}
+
+/* Hero text */
+.left-hero{flex:1;display:flex;flex-direction:column;justify-content:center;padding:40px 0}
+.left-eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--font-body);font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:22px}
+.left-eyebrow::before{content:'';width:28px;height:1px;background:var(--gold)}
+.left-hero h2{font-family:var(--font-display);font-size:clamp(44px,4.8vw,72px);line-height:.92;color:var(--white);margin-bottom:24px}
+.left-hero h2 em{color:var(--gold);font-style:italic;display:block}
+.left-hero p{color:rgba(240,237,232,.55);font-size:14px;line-height:1.85;max-width:380px;margin-bottom:40px;font-weight:400}
+
+/* Stats */
+.left-stats{display:flex;gap:0;margin-bottom:44px}
+.ls{display:flex;flex-direction:column;padding:18px 28px;border:1px solid var(--border);position:relative}
+.ls:not(:last-child){border-right:none}
+.ls::after{content:'';position:absolute;inset:0;background:rgba(212,160,23,.02)}
+.ls-val{font-family:var(--font-display);font-size:32px;color:var(--gold);letter-spacing:1px;line-height:1}
+.ls-label{font-family:var(--font-body);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-top:4px}
+
+/* Feature list */
+.left-features{display:flex;flex-direction:column;gap:12px;margin-bottom:36px}
+.left-feature{display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(240,237,232,.6);font-weight:400}
+.lf-icon{width:28px;height:28px;background:rgba(212,160,23,.1);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+
+/* Bottom certs */
+.left-bottom{display:flex;gap:8px;flex-wrap:wrap;padding-top:20px;border-top:1px solid var(--border)}
+.cert-tag{padding:5px 12px;border:1px solid rgba(212,160,23,.2);font-family:var(--font-body);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(136,136,136,.7);transition:border-color .3s}
+.cert-tag:hover{border-color:rgba(212,160,23,.5);color:var(--gold)}
+
+/* ── RIGHT PANEL ── */
+.right-panel{display:flex;align-items:center;justify-content:center;padding:48px 52px;background:var(--dark-2);position:relative;overflow-y:auto;min-height:100vh}
+.right-panel::before{content:'';position:absolute;left:0;top:10%;bottom:10%;width:1px;background:linear-gradient(to bottom,transparent,var(--border) 30%,var(--border) 70%,transparent)}
+.auth-box{width:100%;max-width:430px}
+
+/* Top nav link */
+.back-to-site{position:fixed;top:22px;right:28px;display:flex;align-items:center;gap:6px;color:var(--gray);text-decoration:none;font-family:var(--font-body);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;transition:color .3s;z-index:50;padding:8px 14px;border:1px solid transparent}
+.back-to-site:hover{color:var(--gold);border-color:var(--border)}
+
+/* Auth header */
+.auth-header{margin-bottom:28px}
+.auth-brand{font-family:var(--font-body);font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.auth-title{font-family:var(--font-display);font-size:32px;color:var(--white);line-height:1.05;margin-bottom:4px}
+.auth-sub{color:var(--gray);font-size:13px;line-height:1.6;font-weight:400}
+
+/* Role selector */
+.role-label{font-family:var(--font-body);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gray);margin-bottom:10px;display:block}
+.role-selector{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:26px}
+.role-btn{padding:14px 12px;border:1px solid var(--border);background:var(--dark-3);cursor:pointer;transition:all .25s;text-align:center;position:relative;overflow:hidden}
+.role-btn .role-icon{display:flex;align-items:center;justify-content:center;margin-bottom:8px;height:32px}
+.role-btn .role-name{display:block;font-family:var(--font-body);font-size:13px;font-weight:700;letter-spacing:1px;color:var(--white);margin-bottom:2px}
+.role-btn .role-desc{display:block;font-size:10px;color:var(--gray);letter-spacing:1px;font-family:var(--font-body);text-transform:uppercase}
+.role-btn:hover{border-color:rgba(212,160,23,.4);background:rgba(212,160,23,.04)}
+.role-btn.selected{border-color:var(--gold);background:rgba(212,160,23,.08)}
+.role-btn.selected::after{content:'✓';position:absolute;top:8px;right:10px;color:var(--gold);font-size:11px;font-weight:700}
+.role-btn.selected .role-name{color:var(--gold)}
+
+/* Tabs */
+.tab-bar{display:flex;margin-bottom:24px;border-bottom:1px solid var(--border)}
+.tab-btn{flex:1;padding:12px;background:none;border:none;font-family:var(--font-body);font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--gray);cursor:pointer;transition:color .3s;position:relative}
+.tab-btn.active{color:var(--gold)}
+.tab-btn.active::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--gold)}
+.auth-panel{display:none}
+.auth-panel.active{display:block}
+
+/* Form */
+.form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.form-group label{font-family:var(--font-body);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gray)}
+.input-wrap{position:relative}
+.input-wrap input{width:100%;background:var(--dark-3);border:1px solid var(--border);color:var(--white);padding:13px 44px 13px 16px;font-family:var(--font-heading);font-size:13px;outline:none;transition:border-color .25s,background .25s}
+.input-wrap input:focus{border-color:var(--gold);background:#1e1e1e}
+.input-wrap input::placeholder{color:rgba(136,136,136,.45);font-size:12px}
+.input-wrap input.invalid{border-color:var(--error)}
+.input-icon{position:absolute;right:13px;top:50%;transform:translateY(-50%);color:var(--gray);cursor:pointer;transition:color .3s;display:flex;align-items:center}
+.input-icon:hover{color:var(--gold)}
+.form-row-2{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:8px}
+.checkbox-wrap{display:flex;align-items:center;gap:8px;cursor:pointer}
+.checkbox-wrap input[type=checkbox]{width:14px;height:14px;accent-color:var(--gold);cursor:pointer}
+.checkbox-wrap span{font-size:12px;color:var(--gray);font-weight:400}
+.forgot-link{font-size:12px;color:var(--gold);text-decoration:none;transition:opacity .3s;font-weight:500}
+.forgot-link:hover{opacity:.7}
+
+/* Primary button */
+.auth-btn{width:100%;background:var(--gold);color:#000;border:none;padding:15px;font-family:var(--font-body);font-size:14px;font-weight:700;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:background .25s,transform .2s;margin-bottom:14px;position:relative;overflow:hidden}
+.auth-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(45deg,transparent 40%,rgba(255,255,255,.25) 50%,transparent 60%);transform:translateX(-100%);transition:transform .5s}
+.auth-btn:hover{background:var(--gold-light);transform:translateY(-2px)}
+.auth-btn:hover::before{transform:translateX(100%)}
+.auth-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+/* Divider & social */
+.auth-divider{display:flex;align-items:center;gap:14px;margin:14px 0}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.auth-divider span{font-size:10px;color:var(--gray);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;font-family:var(--font-heading)}
+.social-logins{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.social-login-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border:1px solid var(--border);background:var(--dark-3);color:var(--white);font-family:var(--font-body);font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:border-color .25s,background .25s;text-decoration:none}
+.social-login-btn:hover{border-color:var(--gold);background:rgba(212,160,23,.05)}
+.auth-switch{text-align:center;font-size:12px;color:var(--gray);margin-top:6px}
+.auth-switch a{color:var(--gold);text-decoration:none;font-weight:500}
+
+.form-2col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.password-strength{height:3px;background:var(--dark-3);margin-top:6px;overflow:hidden}
+.psb{height:100%;width:0%;transition:width .4s,background .4s}
+.strength-label{font-size:10px;color:var(--gray);margin-top:3px;display:block;font-family:var(--font-heading)}
+
+.left-bottom a {
+  text-decoration: none;
+}
+
+/* Messages */
+.form-msg{padding:10px 14px;font-size:12px;font-family:var(--font-heading);margin-bottom:12px;display:none;line-height:1.5;font-weight:500}
+.form-msg.error{background:rgba(229,83,83,.08);border-left:3px solid var(--error);color:var(--error);display:block}
+.form-msg.success{background:rgba(76,175,130,.08);border-left:3px solid var(--success);color:var(--success);display:block}
+
+.form-terms{font-size:11px;color:var(--gray);line-height:1.7;margin-bottom:14px;font-weight:400}
+.form-terms a{color:var(--gold);text-decoration:none}
+
+/* Trust indicators */
+.trust-bar{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:20px;padding-top:18px;border-top:1px solid var(--border)}
+.trust-item{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(136,136,136,.6);font-family:var(--font-heading);letter-spacing:.5px}
+.trust-item span:first-child{font-size:13px}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--dark-2);border:1px solid var(--border);padding:44px;max-width:420px;width:100%;animation:modal-in .3s ease;position:relative}
+@keyframes modal-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal-box h3{font-family:var(--font-display);font-size:28px;color:var(--white);margin-bottom:6px}
+.modal-box .modal-desc{color:var(--gray);font-size:13px;margin-bottom:22px;line-height:1.7}
+.modal-close{position:absolute;top:14px;right:18px;font-size:18px;cursor:pointer;color:var(--gray);transition:color .3s;background:none;border:none}
+.modal-close:hover{color:var(--white)}
+.modal-success{display:none;text-align:center;padding:8px 0}
+.modal-success .check-icon{font-size:40px;margin-bottom:12px;display:block}
+.modal-success .ok-text{color:var(--success);font-size:16px;font-weight:600;margin-bottom:6px}
+.modal-success .ok-sub{color:var(--gray);font-size:13px;line-height:1.7}
+.modal-success .ok-sub a{color:var(--gold)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--dark-2)}
+::-webkit-scrollbar-thumb{background:rgba(212,160,23,.25)}
+::-webkit-scrollbar-thumb:hover{background:var(--gold)}
+
+/* Responsive */
+@media(max-width:1000px){
+  .login-layout{grid-template-columns:1fr}
+  .left-panel{display:none}
+  .right-panel{padding:72px 28px 40px;align-items:flex-start}
+  .back-to-site{position:absolute}
+}
+@media(max-width:540px){
+  .right-panel{padding:64px 16px 32px}
+  .social-logins{grid-template-columns:1fr}
+  .form-2col{grid-template-columns:1fr}
+  .auth-box{padding-top:0}
+}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<a href="index.html" class="back-to-site">← Back to Site</a>
+
+<div class="login-layout">
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="left-bg"></div>
+    <div class="left-overlay"></div>
+    <div class="left-content">
+      <div class="left-logo">
+        <a href="index.html">
+          <img src="./assets/stackly-removebg-preview.webp" alt="STACKLY">
+          <div class="logo-divider"></div>
+          <span class="logo-label">Admin Portal</span>
+        </a>
+      </div>
+
+      <div class="left-hero">
+        <div class="left-eyebrow">Est. 1998 · 48 Countries</div>
+        <h2 id="lh">POWERING<br>THE WORLD'S<br><em>RESOURCES.</em></h2>
+        <p>Access the STACKLY command centre — track live projects, manage your team, review financial reports, and coordinate operations across every site, from anywhere on the planet.</p>
+        <div class="left-stats">
+          <div class="ls"><span class="ls-val">250+</span><span class="ls-label">Projects</span></div>
+          <div class="ls"><span class="ls-val">487</span><span class="ls-label">Team Members</span></div>
+          <div class="ls"><span class="ls-val">98%</span><span class="ls-label">Uptime</span></div>
+        </div>
+
+        <div class="left-features">
+          <div class="left-feature"><div class="lf-icon">📊</div>Live project dashboards and KPI tracking</div>
+          <div class="left-feature"><div class="lf-icon">👥</div>Team management and role-based access</div>
+          <div class="left-feature"><div class="lf-icon">💰</div>Real-time revenue analytics and reporting</div>
+          <div class="left-feature"><div class="lf-icon">🛡️</div>HSE incident tracking and safety scores</div>
+        </div>
+      </div>
+
+      <div class="left-bottom">
+        <a href="./error.html"><span class="cert-tag">ISO 9001</span></a>
+        <a href="./error.html"><span class="cert-tag">ISO 14001</span></a>
+        <a href="./error.html"><span class="cert-tag">OHSAS 18001</span></a>
+        <a href="./error.html"><span class="cert-tag">JORC</span></a>
+        <a href="./error.html"><span class="cert-tag">ASX Listed</span></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="auth-box" id="auth-box">
+      <div class="auth-header">
+        <div class="auth-brand">STACKLY Mining & Industry</div>
+        <h1 class="auth-title" id="auth-main-title">Welcome Back</h1>
+        <p class="auth-sub" id="auth-main-sub">Sign in to access your dashboard and portal.</p>
+      </div>
+
+      <!-- ROLE SELECTOR -->
+      <span class="role-label">I am signing in as</span>
+      <div class="role-selector">
+        <div class="role-btn selected" data-role="user" onclick="selectRole('user',this)">
+          <span class="role-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          </span>
+          <span class="role-name">Client / User</span>
+          <span class="role-desc">Project Portal</span>
+        </div>
+        <div class="role-btn" data-role="admin" onclick="selectRole('admin',this)">
+          <span class="role-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--gray)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </span>
+          <span class="role-name">Administrator</span>
+          <span class="role-desc">Full System Access</span>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <div class="tab-bar">
+        <button class="tab-btn active" data-tab="login">Sign In</button>
+        <button class="tab-btn" data-tab="register">Register</button>
+      </div>
+
+      <!-- SIGN IN -->
+      <div class="auth-panel active" id="login-panel">
+        <div id="login-msg" class="form-msg"></div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <div class="input-wrap">
+            <input type="email" id="login-email" placeholder="you@company.com" autocomplete="email"
+              oninput="liveValidateLogin()">
+            <span class="input-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            </span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <div class="input-wrap">
+            <input type="password" id="login-pass" placeholder="Enter your password" autocomplete="current-password"
+              oninput="liveValidateLogin()">
+            <span class="input-icon" onclick="togglePwd('login-pass')" title="Show / hide">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </span>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <label class="checkbox-wrap"><input type="checkbox" id="remember-me"><span>Keep me signed in</span></label>
+          <a href="./error.html" class="forgot-link" id="open-forgot">Forgot password?</a>
+        </div>
+        <button class="auth-btn" id="sign-in-btn" onclick="handleLogin()">Sign In →</button>
+        <div class="auth-divider"><span>or sign in with</span></div>
+        <div class="social-logins">
+          <a href="error.html" class="social-login-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24"><path fill="#EA4335" d="M5.26 9.77A7.2 7.2 0 0 1 12 4.8c1.73 0 3.3.6 4.52 1.59l3.38-3.38A12 12 0 0 0 12 0C7.37 0 3.35 2.67 1.27 6.57l3.99 3.2z"/><path fill="#34A853" d="M16.04 18.01A7.18 7.18 0 0 1 12 19.2a7.2 7.2 0 0 1-6.73-4.62l-4 3.08A12 12 0 0 0 12 24c3.24 0 6.23-1.23 8.49-3.24l-4.45-2.75z"/><path fill="#FBBC05" d="M19.2 12c0-.67-.06-1.31-.17-1.93H12v3.86h4.04a3.45 3.45 0 0 1-1.5 2.27l4.45 2.75A11.94 11.94 0 0 0 21.6 12H19.2z"/><path fill="#4285F4" d="M12 4.8c1.73 0 3.3.6 4.52 1.59l3.38-3.38A12 12 0 0 0 12 0C7.37 0 3.35 2.67 1.27 6.57l3.99 3.2A7.2 7.2 0 0 1 12 4.8z"/></svg>
+            Google
+          </a>
+          <a href="error.html" class="social-login-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45C23.2 24 24 23.23 24 22.27V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+            LinkedIn
+          </a>
+        </div>
+        <p class="auth-switch">New to STACKLY? <a href="#" data-switch="register">Create an account</a></p>
+        <div class="trust-bar">
+          <div class="trust-item"><span>🔒</span> SSL Secured</div>
+          <div class="trust-item"><span>🛡️</span> 2FA Ready</div>
+          <div class="trust-item"><span>✅</span> SOC 2 Compliant</div>
+        </div>
+      </div>
+
+      <!-- REGISTER -->
+      <div class="auth-panel" id="register-panel">
+        <div id="reg-msg" class="form-msg"></div>
+        <div class="form-2col">
+          <div class="form-group"><label>First Name *</label><div class="input-wrap"><input type="text" id="reg-fname" placeholder="John" autocomplete="given-name"
+              oninput="textOnlyL(this);liveValidateReg()" onpaste="pasteTextL(event,this)"></div></div>
+          <div class="form-group"><label>Last Name *</label><div class="input-wrap"><input type="text" id="reg-lname" placeholder="Smith" autocomplete="family-name"
+              oninput="textOnlyL(this);liveValidateReg()" onpaste="pasteTextL(event,this)"></div></div>
+        </div>
+        <div class="form-group"><label>Company / Organisation</label><div class="input-wrap"><input type="text" id="reg-company" placeholder="Your company name" autocomplete="organization"
+              oninput="textOnlyL(this)" onpaste="pasteTextL(event,this)"></div></div>
+        <div class="form-group"><label>Job Title</label><div class="input-wrap"><input type="text" id="reg-title" placeholder="e.g. Project Manager"
+              oninput="textOnlyL(this)" onpaste="pasteTextL(event,this)"></div></div>
+        <div class="form-group">
+          <label>Work Email *</label>
+          <div class="input-wrap">
+            <input type="email" id="reg-email" placeholder="john@company.com" autocomplete="email"
+              oninput="liveValidateReg()">
+            <span class="input-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Password *</label>
+          <div class="input-wrap">
+            <input type="password" id="reg-pass" placeholder="Create a strong password"
+              oninput="updateStrength(this.value);liveValidateReg()" autocomplete="new-password">
+            <span class="input-icon" onclick="togglePwd('reg-pass')"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+          </div>
+          <div class="password-strength"><div class="psb" id="strength-bar"></div></div>
+          <span class="strength-label" id="strength-label">Enter a password</span>
+        </div>
+        <div class="form-group"><label>Confirm Password *</label><div class="input-wrap"><input type="password" id="reg-confirm" placeholder="Re-enter your password" autocomplete="new-password"
+              oninput="liveValidateReg()"></div></div>
+        <p class="form-terms">By registering you agree to STACKLY's <a href="error.html">Terms of Service</a> and <a href="error.html">Privacy Policy</a>.</p>
+        <button class="auth-btn" id="reg-btn" onclick="handleRegister()">Create Account →</button>
+        <p class="auth-switch">Already have an account? <a href="#" data-switch="login">Sign in here</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FORGOT PASSWORD MODAL -->
+<div class="modal-overlay" id="forgot-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeForgot()">✕</button>
+    <div id="forgot-form-view">
+      <h3>Reset Password</h3>
+      <p class="modal-desc">Enter your email address and we'll send a reset link. It expires in 30 minutes.</p>
+      <div id="forgot-msg" class="form-msg"></div>
+      <div class="form-group"><label>Email Address</label><div class="input-wrap"><input type="email" id="forgot-email" placeholder="you@company.com"><span class="input-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span></div></div>
+      <button class="auth-btn" style="margin-top:4px" onclick="handleForgot()">Send Reset Link →</button>
+    </div>
+    <div class="modal-success" id="forgot-success-view">
+      <span class="check-icon">✅</span>
+      <p class="ok-text">Reset link sent!</p>
+      <p class="ok-sub">Check your inbox. Didn't get it? <a href="#" onclick="showForgotForm();return false;">Try again</a>.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── ACCOUNT STORE — any email/password works ── */
+const BUILTIN = {
+  'admin@stackly.com':{ password:'admin123', role:'admin', name:'James Sullivan', avatar:'JS', title:'Super Admin', company:'STACKLY' },
+  'user@stackly.com': { password:'user123',  role:'user',  name:'Sarah Blake',   avatar:'SB', title:'Project Manager', company:'STACKLY' }
+};
+let MEM = { ...BUILTIN };
+try{ const r=localStorage.getItem('stk_reg')||sessionStorage.getItem('stk_reg')||'{}'; MEM={...BUILTIN,...JSON.parse(r)}; }catch(e){}
+function saveAccount(email,data){ MEM[email]=data; try{const s=JSON.parse(localStorage.getItem('stk_reg')||'{}');s[email]=data;const str=JSON.stringify(s);localStorage.setItem('stk_reg',str);sessionStorage.setItem('stk_reg',str);}catch(e){} }
+let currentRole='user';
+
+/* ── PARTICLES ── */
+(function(){
+  const cv=document.getElementById('bg-canvas'),ctx=cv.getContext('2d');let W,H,pts=[];
+  function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight;} resize();addEventListener('resize',resize);
+  function P(){this.x=Math.random()*W;this.y=Math.random()*H;this.vx=(Math.random()-.5)*.3;this.vy=(Math.random()-.5)*.3;this.r=Math.random()*1.4+.3;}
+  for(let i=0;i<100;i++)pts.push(new P());
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(212,160,23,.55)';ctx.fill();});
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<110){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(212,160,23,${(1-d/110)*.18})`;ctx.lineWidth=.5;ctx.stroke();}}
+    requestAnimationFrame(draw);
+  }draw();
+})();
+
+/* ── GSAP ── */
+gsap.timeline({defaults:{ease:'power4.out'}})
+  .fromTo('#lh',{opacity:0,y:60,skewY:4},{opacity:1,y:0,skewY:0,duration:1.1},0.3)
+  .fromTo('#auth-box',{opacity:0,x:36},{opacity:1,x:0,duration:.9},0.4);
+
+/* ── ROLE SELECTION ── */
+function selectRole(role,el){
+  currentRole=role;
+  document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  const a=role==='admin';
+  document.getElementById('auth-main-title').textContent=a?'Admin Sign In':'Welcome Back';
+  document.getElementById('auth-main-sub').textContent=a?'Sign in to access the admin dashboard and system controls.':'Sign in to access your project dashboard and portal.';
+}
+
+/* ── TABS ── */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.auth-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab+'-panel').classList.add('active');
+    clearMsg('login-msg');clearMsg('reg-msg');
+  });
+});
+document.querySelectorAll('[data-switch]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    e.preventDefault();const t=a.dataset.switch;
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
+    document.querySelectorAll('.auth-panel').forEach(p=>p.classList.toggle('active',p.id===t+'-panel'));
+    clearMsg('login-msg');clearMsg('reg-msg');
+  });
+});
+
+/* ── HELPERS ── */
+function showMsg(id,type,text){const el=document.getElementById(id);el.className='form-msg '+type;el.textContent=text;el.scrollIntoView({behavior:'smooth',block:'nearest'});}
+function clearMsg(id){const el=document.getElementById(id);el.className='form-msg';el.textContent='';}
+function togglePwd(id){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password';}
+
+/* ── LOGIN — any email accepted ── */
+function handleLogin(){
+  const emailEl=document.getElementById('login-email'),passEl=document.getElementById('login-pass');
+  const email=emailEl.value.trim().toLowerCase();
+  const pass=passEl.value;
+  clearMsg('login-msg');
+  emailEl.classList.remove('invalid');passEl.classList.remove('invalid');
+  if(!email||!email.includes('@')){emailEl.classList.add('invalid');showMsg('login-msg','error','Please enter a valid email address.');return;}
+  if(!pass){passEl.classList.add('invalid');showMsg('login-msg','error','Please enter your password.');return;}
+  const dest=currentRole==='admin'?'admin-dashboard.html':'user-dashboard.html';
+  document.getElementById('sign-in-btn').disabled=true;
+  /* Save session so dashboard can read it */
+  const acct=MEM[email]||{role:currentRole,name:email.split('@')[0],avatar:email.slice(0,2).toUpperCase(),title:currentRole==='admin'?'Super Admin':'Client',company:'STACKLY'};
+  const session={loggedIn:true,role:currentRole,name:acct.name||email,avatar:acct.avatar||email.slice(0,2).toUpperCase(),title:acct.title||'User',firstName:(acct.name||email).split(' ')[0],email:email};
+  try{localStorage.setItem('stk_session',JSON.stringify(session));}catch(e){}
+  try{sessionStorage.setItem('stk_session',JSON.stringify(session));}catch(e){}
+  window.location.href=dest;
+}
+
+/* ── REGISTER ── */
+function handleRegister(){
+  const fnameEl=document.getElementById('reg-fname'),lnameEl=document.getElementById('reg-lname');
+  const emailEl=document.getElementById('reg-email'),passEl=document.getElementById('reg-pass'),confirmEl=document.getElementById('reg-confirm');
+  const fname=fnameEl.value.trim();
+  const lname=lnameEl.value.trim();
+  const company=document.getElementById('reg-company').value.trim();
+  const title=document.getElementById('reg-title').value.trim();
+  const emailRaw=emailEl.value.trim();
+  const email=emailRaw.toLowerCase();
+  const pass=passEl.value;
+  const confirm=confirmEl.value;
+  clearMsg('reg-msg');
+  [fnameEl,lnameEl,emailEl,passEl,confirmEl].forEach(el=>el.classList.remove('invalid'));
+  if(!fname){fnameEl.classList.add('invalid');showMsg('reg-msg','error','First name is required.');return;}
+  if(!lname){lnameEl.classList.add('invalid');showMsg('reg-msg','error','Last name is required.');return;}
+  if(!email||!email.includes('@')||!email.includes('.')){emailEl.classList.add('invalid');showMsg('reg-msg','error','Please enter a valid email address.');return;}
+  if(pass.length<6){passEl.classList.add('invalid');showMsg('reg-msg','error','Password must be at least 6 characters.');return;}
+  if(pass!==confirm){confirmEl.classList.add('invalid');showMsg('reg-msg','error','Passwords do not match.');return;}
+  if(MEM[email]){emailEl.classList.add('invalid');showMsg('reg-msg','error','An account with this email already exists.');return;}
+  const name=`${fname} ${lname}`,avatar=(fname[0]+lname[0]).toUpperCase();
+  saveAccount(email,{password:pass,role:'user',name,avatar,title:title||'Client',company:company||'Independent'});
+  showMsg('reg-msg','success',`✓ Account created for ${name}! Please sign in.`);
+  setTimeout(()=>{
+    document.getElementById('login-email').value=email;
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab==='login'));
+    document.querySelectorAll('.auth-panel').forEach(p=>p.classList.toggle('active',p.id==='login-panel'));
+    clearMsg('reg-msg');document.getElementById('login-pass').focus();
+  },1800);
+}
+
+
+/* ── PASSWORD STRENGTH ── */
+function updateStrength(v){
+  const bar=document.getElementById('strength-bar'),lbl=document.getElementById('strength-label');
+  let s=0;if(v.length>=6)s++;if(v.length>=10)s++;if(/[A-Z]/.test(v)&&/[0-9]/.test(v))s++;if(/[^A-Za-z0-9]/.test(v))s++;
+  const colors=['#E55353','#FF9800','#FFC107','#4CAF82'],labels=['Weak','Fair','Good','Strong'];
+  bar.style.width=(s*25)+'%';bar.style.background=colors[s-1]||'transparent';lbl.textContent=s?labels[s-1]:'Enter a password';
+}
+/* ── Input restrictions ── */
+['reg-fname','reg-lname'].forEach(id=>{
+  const el=document.getElementById(id);if(!el)return;
+  el.addEventListener('keypress',e=>{if(/[0-9]/.test(e.key))e.preventDefault();});
+  el.addEventListener('input',()=>{el.value=el.value.replace(/[0-9]/g,'');});
+});
+
+document.addEventListener('keydown',e=>{if(e.key==='Enter'){const lp=document.getElementById('login-panel');if(lp.classList.contains('active'))handleLogin();}});
+</script>
+</body>
+</html>

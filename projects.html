@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projects — STACKLY Mining & Industry</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Montserrat:wght@300;400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+:root{
+  --gold:#D4A017;--gold-light:#F5C842;
+  --dark:#0A0A0A;--dark-2:#111111;--dark-3:#1A1A1A;
+  --white:#F0EDE8;--gray:#888;
+  --border:rgba(212,160,23,0.15);
+  --font-display:'Playfair Display',serif;
+  --font-heading:'Montserrat',sans-serif;
+  --font-body:'Rajdhani',sans-serif;
+  --nav-h:80px;--pad-x:60px;--section-y:100px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;overflow-x:hidden;}
+body{background:var(--dark);color:var(--white);font-family:var(--font-body);overflow-x:hidden;width:100%;}
+::selection{background:var(--gold);color:var(--dark);}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--dark);}::-webkit-scrollbar-thumb{background:var(--gold);}
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.32;}
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;width:100%;z-index:1000;
+  padding:0 40px;display:flex;align-items:center;justify-content:space-between;
+  height:80px;background:rgba(10,10,10,0.85);
+  backdrop-filter:blur(20px);border-bottom:1px solid rgba(212,160,23,0.15);
+  transition:all 0.4s ease;
+}
+nav.scrolled{height:60px;background:rgba(10,10,10,0.97);}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0;}
+.nav-logo-img{height:44px;max-width:180px;width:auto;filter:brightness(1.1);}
+.nav-links{display:flex;align-items:center;gap:2px;}
+.nav-links a{
+  color:var(--white);text-decoration:none;font-family:var(--font-heading);
+  font-size:0.72rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;
+  padding:8px 10px;border-radius:4px;transition:all 0.3s ease;position:relative;overflow:hidden;
+  white-space:nowrap;
+}
+.nav-links a::before{content:'';position:absolute;bottom:0;left:0;width:0;height:1px;background:var(--gold);transition:width 0.3s ease;}
+.nav-links a:hover{color:var(--gold);}
+.nav-links a:hover::before,.nav-links a.active::before{width:100%;}
+.nav-links a.active{color:var(--gold);}
+.nav-cta{background:var(--gold);color:var(--dark)!important;font-weight:700!important;padding:9px 18px!important;border-radius:4px;}
+.nav-cta:hover{background:var(--gold-light)!important;transform:translateY(-1px);}
+.hamburger{
+  display:none;flex-direction:column;justify-content:center;align-items:center;
+  width:40px;height:40px;cursor:pointer;padding:4px;
+  position:relative;flex-shrink:0;z-index:1001;
+}
+.hamburger span{
+  display:block;width:26px;height:2px;background:var(--gold);border-radius:1px;
+  position:absolute;transition:transform 0.35s cubic-bezier(0.23,1,0.32,1),opacity 0.25s ease;transform-origin:center;
+}
+.hamburger span:nth-child(1){transform:translateY(-7px);}
+.hamburger span:nth-child(2){transform:translateY(0);}
+.hamburger span:nth-child(3){transform:translateY(7px);}
+.hamburger.is-open span:nth-child(1){transform:translateY(0) rotate(45deg);}
+.hamburger.is-open span:nth-child(2){opacity:0;transform:scaleX(0);}
+.hamburger.is-open span:nth-child(3){transform:translateY(0) rotate(-45deg);}
+.mobile-menu{
+  display:none;position:fixed;top:80px;left:0;width:100%;
+  background:rgba(10,10,10,0.98);backdrop-filter:blur(20px);
+  padding:30px;flex-direction:column;gap:8px;
+  border-bottom:1px solid rgba(212,160,23,0.2);z-index:999;
+}
+.mobile-menu.open{display:flex;}
+.mobile-menu a{
+  color:var(--white);text-decoration:none;font-family:var(--font-heading);
+  font-size:1rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;
+  padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.07);transition:color 0.3s;
+}
+.mobile-menu a:hover{color:var(--gold);}
+section{position:relative;z-index:1;overflow:hidden;}
+.section-pad{padding:var(--section-y) var(--pad-x);}
+.section-header{text-align:center;margin-bottom:64px;}
+.section-eyebrow{display:inline-block;font-family:var(--font-heading);font-size:.68rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+.section-title{font-family:var(--font-display);font-size:clamp(2rem,5vw,4.5rem);line-height:1;color:var(--white);letter-spacing:1px;}
+.section-title .gold{color:var(--gold);}
+.section-line{width:56px;height:2px;background:var(--gold);margin:20px auto 0;position:relative;}
+.section-line::before{content:'';position:absolute;left:-28px;top:-2px;width:18px;height:6px;border:2px solid var(--gold);}
+.btn-primary{display:inline-block;text-decoration:none;background:var(--gold);color:var(--dark);font-family:var(--font-heading);font-size:.88rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:14px 38px;border:none;cursor:pointer;border-radius:3px;transition:background .3s,transform .3s,box-shadow .3s;position:relative;overflow:hidden;}
+.btn-primary::before{content:'';position:absolute;inset:0;background:linear-gradient(45deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%);transform:translateX(-100%);transition:transform .5s;}
+.btn-primary:hover::before{transform:translateX(100%);}
+.btn-primary:hover{background:var(--gold-light);transform:translateY(-3px);box-shadow:0 14px 36px rgba(212,160,23,.38);}
+.btn-outline{display:inline-block;text-decoration:none;border:1px solid rgba(212,160,23,.6);color:var(--white);font-family:var(--font-heading);font-size:.88rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:14px 38px;background:transparent;cursor:pointer;border-radius:3px;transition:all .3s;}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);background:rgba(212,160,23,.08);transform:translateY(-3px);}
+.cta-band{padding:90px var(--pad-x);text-align:center;position:relative;overflow:hidden;background:linear-gradient(135deg,var(--dark-3) 0%,#1A1208 100%);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.cta-band::before{content:'';position:absolute;top:50%;left:50%;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(212,160,23,.07) 0%,transparent 70%);transform:translate(-50%,-50%);animation:pulseRing 3s ease-in-out infinite;pointer-events:none;}
+@keyframes pulseRing{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.18)}}
+.cta-title{font-family:var(--font-display);font-size:clamp(2rem,6vw,5.5rem);line-height:1.05;margin-bottom:14px;position:relative;z-index:1;}
+.cta-title .gold{color:var(--gold);}
+.cta-text{color:#888;font-size:clamp(.9rem,2vw,1.05rem);line-height:1.7;margin-bottom:34px;position:relative;z-index:1;}
+.cta-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1;}
+footer{background:var(--dark-2);border-top:1px solid var(--border);padding:76px var(--pad-x) 0;position:relative;z-index:2;overflow:hidden;}
+.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:48px;margin-bottom:52px;}
+.footer-brand p{color:var(--gray);font-family:var(--font-heading);font-size:13px;line-height:1.8;margin-top:14px;max-width:280px;}
+.footer-col h4{font-family:var(--font-heading);font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:16px;font-weight:700;}
+.footer-col ul{list-style:none;display:flex;flex-direction:column;gap:9px;}
+.footer-col a{color:var(--gray);text-decoration:none;font-family:var(--font-heading);font-size:13px;transition:color .3s;}
+.footer-col a:hover{color:var(--gold);}
+.footer-static{color:var(--gray);font-family:var(--font-heading);font-size:13px;display:inline-block;}
+.socials-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+.social-btn{width:38px;height:38px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--gray);text-decoration:none;transition:all .3s;}
+.social-btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(212,160,23,.08);}
+.footer-bottom{border-top:1px solid var(--border);padding:20px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.footer-bottom p{color:var(--gray);font-family:var(--font-heading);font-size:12px;}
+.footer-bottom-links{display:flex;gap:20px;flex-wrap:wrap;}
+.footer-bottom-links a{color:var(--gray);font-family:var(--font-heading);font-size:12px;text-decoration:none;transition:color .3s;}
+.footer-bottom-links a:hover{color:var(--gold);}
+.reveal{opacity:0;transform:translateY(44px);}
+.reveal-left{opacity:0;transform:translateX(-60px);}
+.reveal-right{opacity:0;transform:translateX(60px);}
+.reveal-scale{opacity:0;transform:scale(.85);}
+
+/* ── PAGE HERO ── */
+.page-hero{
+  position:relative;
+  min-height:58vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  z-index:1;
+  padding-top:var(--nav-h);
+}
+.page-hero-bg{position:absolute;inset:0;z-index:0;}
+.page-hero-bg img{width:100%;height:100%;object-fit:cover;opacity:.32;position:absolute;inset:0;}
+.page-hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,var(--dark) 100%);}
+.page-hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(212,160,23,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(212,160,23,.05) 1px,transparent 1px);background-size:60px 60px;z-index:1;animation:gridShift 20s linear infinite;}
+@keyframes gridShift{0%{background-position:0 0}100%{background-position:60px 60px}}
+.page-hero-content{
+  position:relative;
+  z-index:2;
+  text-align:center;
+  padding:40px var(--pad-x);
+}
+.page-eyebrow{
+  font-family:var(--font-heading);
+  font-size:.68rem;font-weight:700;
+  letter-spacing:5px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:14px;display:block;
+}
+
+/* ── HERO HEADLINE FIX ──
+   Key changes:
+   1. line-height: 1.15 instead of .92 — gives descenders room to breathe
+   2. overflow: visible on .hero-line so clipping never cuts letters
+   3. padding-bottom on each hero-line to protect descenders during skewY
+   4. No <br> tags needed — spacing handled by gap/margin
+   ─────────────────────────────────────────────── */
+.page-hero h1{
+  font-family:var(--font-display);
+  font-size:clamp(3rem,9vw,7.5rem);
+  line-height:1.15;           /* was .92 — too tight, clipped J descender */
+  letter-spacing:2px;
+  color:var(--white);
+}
+.page-hero h1 span{color:var(--gold);}
+
+.hero-line{
+  overflow:visible;           /* was hidden — was clipping bottom of J, P, y etc. */
+  display:block;
+  padding-bottom:.08em;       /* breathing room for descenders */
+}
+
+.breadcrumb{
+  display:flex;align-items:center;gap:10px;justify-content:center;
+  margin-top:22px;
+  font-family:var(--font-heading);font-size:.7rem;color:var(--gray);letter-spacing:2px;
+}
+.breadcrumb a{color:var(--gold);text-decoration:none;}
+
+/* ── SHARED RESPONSIVE ── */
+@media(max-width:1280px){
+  :root{--pad-x:44px;--section-y:88px;}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:32px;}
+}
+@media(max-width:1023px){
+  :root{--pad-x:32px;--section-y:76px;}
+  nav{padding:0 var(--pad-x);}
+  .nav-links{display:none;}
+  .hamburger{display:flex;}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:28px;}
+  .reveal-left,.reveal-right{transform:translateY(30px);}
+}
+@media(max-width:768px){
+  :root{--nav-h:62px;--pad-x:20px;--section-y:60px;}
+  nav{padding:0 var(--pad-x);height:var(--nav-h);}
+  nav.scrolled{height:52px;}
+  .nav-logo-img{height:32px;max-width:130px;}
+  .mobile-menu{top:var(--nav-h);padding:16px var(--pad-x) 24px;}
+  .page-hero{min-height:50vh;}
+  .page-hero h1{font-size:clamp(2.4rem,11vw,4.5rem);}
+  .page-hero-content{padding:32px var(--pad-x);}
+  .section-header{margin-bottom:44px;}
+  .section-title{font-size:clamp(1.8rem,8vw,2.8rem);}
+  .cta-band{padding:64px var(--pad-x);}
+  .cta-title{font-size:clamp(1.8rem,8.5vw,3rem);}
+  .cta-buttons{flex-direction:column;align-items:center;gap:12px;}
+  .cta-buttons .btn-primary,.cta-buttons .btn-outline{width:100%;max-width:260px;text-align:center;padding:13px 18px;}
+  footer{padding:52px var(--pad-x) 0;}
+  .footer-grid{grid-template-columns:1fr;gap:28px;}
+  .footer-brand p{max-width:100%;}
+  .footer-bottom{flex-direction:column;text-align:center;gap:8px;}
+  .footer-bottom-links{justify-content:center;gap:14px;}
+  .socials-row{gap:8px;}
+  .reveal-left,.reveal-right{transform:translateY(24px);}
+}
+@media(max-width:576px){
+  :root{--pad-x:16px;--section-y:50px;}
+  .page-hero h1{font-size:clamp(2rem,12vw,3.5rem);}
+  .cta-title{font-size:clamp(1.6rem,9vw,2.6rem);}
+  .cta-buttons .btn-primary,.cta-buttons .btn-outline{max-width:240px;}
+  .reveal-left,.reveal-right{transform:translateY(20px);}
+}
+@media(max-width:400px){
+  :root{--pad-x:14px;}
+  .nav-logo-img{height:26px;max-width:110px;}
+  .page-hero h1{font-size:clamp(1.8rem,13vw,2.8rem);}
+  .footer-bottom-links{flex-direction:column;gap:6px;align-items:center;}
+  .social-btn{width:34px;height:34px;}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;animation-iteration-count:1!important;}
+  .reveal,.reveal-left,.reveal-right,.reveal-scale{opacity:1;transform:none;}
+}
+
+/* ── PROJECTS-SPECIFIC ── */
+.filter-bar{display:flex;gap:10px;justify-content:center;margin-bottom:52px;flex-wrap:wrap;}
+.filter-btn{background:transparent;border:1px solid rgba(212,160,23,.25);color:var(--gray);font-family:var(--font-heading);font-size:.75rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:9px 22px;border-radius:30px;cursor:pointer;transition:all .3s;}
+.filter-btn.active,.filter-btn:hover{background:var(--gold);color:var(--dark);border-color:var(--gold);}
+.proj-masonry{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;grid-auto-rows:300px;}
+.proj{position:relative;overflow:hidden;cursor:pointer;}
+.proj.wide{grid-column:span 2;}
+.proj img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .7s;}
+.proj:hover img{transform:scale(1.09);}
+.proj-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,10,10,.95) 0%,rgba(10,10,10,.2) 60%,transparent 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:28px;z-index:1;}
+.proj-cat{font-family:var(--font-heading);font-size:.62rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:5px;}
+.proj-title{font-family:var(--font-heading);font-size:1.18rem;font-weight:700;margin-bottom:7px;transform:translateY(14px);transition:transform .4s;line-height:1.3;}
+.proj:hover .proj-title{transform:translateY(0);}
+.proj-meta{display:flex;gap:12px;opacity:0;transform:translateY(14px);transition:all .4s .08s;flex-wrap:wrap;}
+.proj:hover .proj-meta{opacity:1;transform:translateY(0);}
+.proj-meta span{font-family:var(--font-heading);font-size:.7rem;color:#bbb;}
+.proj-arrow{position:absolute;top:14px;right:14px;width:38px;height:38px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--dark);font-size:.9rem;font-weight:700;transform:scale(0) rotate(-45deg);transition:transform .4s;z-index:2;}
+.proj:hover .proj-arrow{transform:scale(1) rotate(0);}
+.pstats{background:var(--dark-3);padding:64px var(--pad-x);}
+.pstats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--border);}
+.pstat{padding:32px 20px;text-align:center;border-right:1px solid rgba(212,160,23,.1);transition:background .3s;}
+.pstat:last-child{border-right:none;}
+.pstat:hover{background:rgba(212,160,23,.06);}
+.pstat-num{font-family:var(--font-display);font-size:2.8rem;color:var(--gold);display:block;line-height:1;}
+.pstat-label{font-family:var(--font-heading);font-size:.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-top:5px;display:block;}
+.feat-proj{display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:560px;}
+.feat-img{position:relative;overflow:hidden;}
+.feat-img img{width:100%;height:100%;object-fit:cover;transition:transform .8s;}
+.feat-img:hover img{transform:scale(1.04);}
+.feat-body{background:var(--dark-3);padding:60px 52px;display:flex;flex-direction:column;justify-content:center;}
+.feat-eyebrow{font-family:var(--font-heading);font-size:.64rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:block;}
+.feat-title{font-family:var(--font-display);font-size:clamp(2rem,4vw,3.8rem);line-height:1.05;margin-bottom:16px;}
+.feat-desc{color:#999;line-height:1.85;font-size:.92rem;margin-bottom:22px;}
+.feat-specs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:32px;}
+.feat-spec{background:rgba(212,160,23,.07);border:1px solid var(--border);padding:14px 16px;border-radius:3px;}
+.feat-spec-label{font-family:var(--font-heading);font-size:.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:3px;}
+.feat-spec-val{font-family:var(--font-heading);font-size:1rem;font-weight:700;}
+.feat-btns{display:flex;gap:14px;flex-wrap:wrap;}
+/* ── PROJECTS RESPONSIVE ── */
+@media(max-width:1023px){
+  .proj-masonry{grid-template-columns:1fr 1fr;grid-auto-rows:260px;}
+  .proj.wide{grid-column:span 2;}
+  .feat-proj{grid-template-columns:1fr;}
+  .feat-img{min-height:320px;}
+  .pstats-row{grid-template-columns:repeat(3,1fr);}
+  .pstat:nth-child(4),.pstat:nth-child(5){border-top:1px solid rgba(212,160,23,.1);}
+}
+@media(max-width:768px){
+  .proj-masonry{grid-template-columns:1fr;grid-auto-rows:220px;}
+  .proj.wide{grid-column:span 1;}
+  .pstats{padding:48px var(--pad-x);}
+  .pstats-row{grid-template-columns:1fr 1fr;}
+  .pstat:nth-child(odd){border-right:1px solid rgba(212,160,23,.1);}
+  .pstat:nth-child(even){border-right:none;}
+  .pstat{border-bottom:1px solid rgba(212,160,23,.1);}
+  .pstat-num{font-size:2.2rem;}
+  .feat-body{padding:36px 24px;}
+  .feat-title{font-size:clamp(1.8rem,7.5vw,2.8rem);}
+  .feat-specs{grid-template-columns:1fr;}
+  .filter-btn{padding:8px 16px;font-size:.7rem;}
+}
+@media(max-width:576px){
+  .proj-masonry{grid-auto-rows:190px;}
+  .pstats-row{grid-template-columns:1fr;}
+  .pstat{border-right:none;}
+  .feat-btns{flex-direction:column;}
+  .feat-btns .btn-primary,.feat-btns .btn-outline{width:100%;text-align:center;}
+}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<nav id="navbar">
+  <a href="index.html" class="nav-logo">
+    <img src="./assets/stackly-removebg-preview.webp" alt="STACKLY" class="nav-logo-img">
+  </a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="./about.html">About</a>
+    <a href="./services.html">Services</a>
+    <a href="./projects.html" class="active">Projects</a>
+    <a href="./blog.html">Blog</a>
+    <a href="./contact.html">Contact</a>
+    <a href="./login.html" class="nav-cta">Login</a>
+  </div>
+  <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Home</a>
+  <a href="./about.html">About</a>
+  <a href="./services.html">Services</a>
+  <a href="./projects.html">Projects</a>
+  <a href="blog.html">Blog</a>
+  <a href="./contact.html">Contact</a>
+  <a href="login.html">Login</a>
+</div>
+
+<section class="page-hero">
+  <div class="page-hero-bg"><img src="https://plus.unsplash.com/premium_photo-1682142162574-b304bacbdc3f?w=1920&q=80" alt="Projects"></div>
+  <div class="page-hero-overlay"></div><div class="page-hero-grid"></div>
+  <div class="page-hero-content">
+    <div class="page-eyebrow hero-line" id="ey1">250+ Completed Worldwide</div>
+    <h1>
+      <div class="hero-line" id="ht1">OUR</div>
+      <div class="hero-line" id="ht2"><span>PROJECTS</span></div>
+    </h1>
+    <div class="breadcrumb"><a href="index.html">Home</a> / <span>Projects</span></div>
+  </div>
+</section>
+
+<section class="section-pad">
+  <div class="section-header">
+    <span class="section-eyebrow reveal">Portfolio</span>
+    <h2 class="section-title reveal">Global <span class="gold">Operations</span></h2>
+    <div class="section-line reveal"></div>
+  </div>
+  <div class="filter-bar reveal">
+    <button class="filter-btn active" onclick="filterProj('all',this)">All Projects</button>
+    <button class="filter-btn" onclick="filterProj('iron',this)">Iron Ore</button>
+    <button class="filter-btn" onclick="filterProj('gold',this)">Gold</button>
+    <button class="filter-btn" onclick="filterProj('copper',this)">Copper</button>
+    <button class="filter-btn" onclick="filterProj('coal',this)">Coal</button>
+    <button class="filter-btn" onclick="filterProj('auto',this)">Automation</button>
+  </div>
+  <div class="proj-masonry" id="projGrid">
+    <div class="proj wide" data-cat="iron"><img src="https://www.miningfrontier.com/wp-content/uploads/2025/07/Western-Australia-Iron-Ore-Discovery-Reshapes-Global-Market.jpg" alt="Pilbara"><div class="proj-overlay"><span class="proj-cat">Iron Ore · Australia</span><h3 class="proj-title">Pilbara Iron Ore Expansion Phase III</h3><div class="proj-meta"><span>📍 Western Australia</span><span>💰 $2.4B</span><span>📅 2022–2025</span></div></div><div class="proj-arrow">→</div></div>
+    <div class="proj" data-cat="copper"><img src="https://secure.northernminer.com/wp-content/uploads/2013/06/1002362476-1002377943-700x437.jpg" alt="Atacama"><div class="proj-overlay"><span class="proj-cat">Copper · Chile</span><h3 class="proj-title">Atacama Copper Complex</h3><div class="proj-meta"><span>📍 Antofagasta</span><span>💰 $1.1B</span></div></div><div class="proj-arrow">→</div></div>
+    <div class="proj" data-cat="gold"><img src="https://www.mining-outlook.com/media/Anglogold-5-jpg.webp" alt="Ashanti"><div class="proj-overlay"><span class="proj-cat">Gold · Ghana</span><h3 class="proj-title">Ashanti Gold Belt Operation</h3><div class="proj-meta"><span>📍 Obuasi</span><span>💰 $680M</span></div></div><div class="proj-arrow">→</div></div>
+    <div class="proj" data-cat="gold"><img src="https://discoveryalert.com.au/wp-content/uploads/2025/08/e98b7d5e-7946-48b4-bd1e-a2cc06f8417f-scaled.jpg" alt="Kalgoorlie"><div class="proj-overlay"><span class="proj-cat">Gold · Australia</span><h3 class="proj-title">Kalgoorlie Deep Shaft Extension</h3><div class="proj-meta"><span>📍 Western Australia</span><span>💰 $340M</span></div></div><div class="proj-arrow">→</div></div>
+    <div class="proj" data-cat="coal"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIofBSoRMw0hLqECiZyX_kELgk-gZo9OqqYA&s" alt="Hunter Valley"><div class="proj-overlay"><span class="proj-cat">Coal · Australia</span><h3 class="proj-title">Hunter Valley Coal Complex</h3><div class="proj-meta"><span>📍 New South Wales</span><span>💰 $890M</span></div></div><div class="proj-arrow">→</div></div>
+    <div class="proj wide" data-cat="auto"><img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Digital Hub"><div class="proj-overlay"><span class="proj-cat">Automation · Australia</span><h3 class="proj-title">STACKLY Digital Mining Hub — Sydney</h3><div class="proj-meta"><span>📍 Sydney NSW</span><span>💰 $420M</span><span>📅 2024</span></div></div><div class="proj-arrow">→</div></div>
+    <div class="proj" data-cat="iron"><img src="https://im-mining.com/site/wp-content/uploads/2022/06/1614-scaled.jpg" alt="Carajas"><div class="proj-overlay"><span class="proj-cat">Iron Ore · Brazil</span><h3 class="proj-title">Carajás Iron Ore Complex</h3><div class="proj-meta"><span>📍 Pará State</span><span>💰 $1.8B</span></div></div><div class="proj-arrow">→</div></div>
+    <div class="proj" data-cat="copper"><img src="https://images.unsplash.com/photo-1712374309372-6901e4aa65b7?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y29wcGVyJTIwcmVoYWJpbGF0aW9ufGVufDB8fDB8fHww" alt="Katanga"><div class="proj-overlay"><span class="proj-cat">Copper · DR Congo</span><h3 class="proj-title">Katanga Copper Rehabilitation</h3><div class="proj-meta"><span>📍 Lualaba Province</span><span>💰 $560M</span></div></div><div class="proj-arrow">→</div></div>
+    <div class="proj" data-cat="gold"><img src="https://discoveryalert.com.au/wp-content/uploads/2025/08/df923b0b-ba0f-478e-8762-ef5557d5f62a-1024x585.jpg" alt="Muruntau"><div class="proj-overlay"><span class="proj-cat">Gold · Uzbekistan</span><h3 class="proj-title">Muruntau Gold Expansion</h3><div class="proj-meta"><span>📍 Navoi Region</span><span>💰 $1.2B</span></div></div><div class="proj-arrow">→</div></div>
+    <div class="proj" data-cat="auto"><img src="https://irp.cdn-website.com/93b94aa4/dms3rep/multi/Fig-3-Autonomous-Haulage.jpg" alt="Autonomous Fleet"><div class="proj-overlay"><span class="proj-cat">Automation · Chile</span><h3 class="proj-title">Atacama Autonomous Haul Fleet</h3><div class="proj-meta"><span>📍 Antofagasta</span><span>💰 $310M</span></div></div><div class="proj-arrow">→</div></div>
+    <div class="proj" data-cat="iron"><img src="https://www.angloamericankumba.com/~/media/Images/A/Anglo-American-Group-v9/Kumba/our-business/sishen-mine.jpg" alt="Northern Cape"><div class="proj-overlay"><span class="proj-cat">Iron Ore · South Africa</span><h3 class="proj-title">Northern Cape Iron Ore Project</h3><div class="proj-meta"><span>📍 Kuruman</span><span>💰 $950M</span></div></div><div class="proj-arrow">→</div></div>
+    <div class="proj" data-cat="coal"><img src="https://images.unsplash.com/photo-1697970684485-eea7cccfa61f?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Bowen Basin"><div class="proj-overlay"><span class="proj-cat">Coal · Australia</span><h3 class="proj-title">Bowen Basin Thermal Coal</h3><div class="proj-meta"><span>📍 Queensland</span><span>💰 $720M</span></div></div><div class="proj-arrow">→</div></div>
+  </div>
+</section>
+
+<div class="pstats">
+  <div class="pstats-row">
+    <div class="pstat"><span class="pstat-num" data-count="250">250</span><span class="pstat-label">Projects Completed</span></div>
+    <div class="pstat"><span class="pstat-num" data-count="48">48</span><span class="pstat-label">Countries</span></div>
+    <div class="pstat"><span class="pstat-num" data-count="45">45</span><span class="pstat-label">Active Projects</span></div>
+    <div class="pstat"><span class="pstat-num" data-count="280">280</span><span class="pstat-label">Mt Processed / yr</span></div>
+    <div class="pstat"><span class="pstat-num" data-count="98">98</span><span class="pstat-label">% On-Time Delivery</span></div>
+  </div>
+</div>
+
+<section class="section-pad" style="background:var(--dark-2);">
+  <div class="section-header">
+    <span class="section-eyebrow reveal">Case Study</span>
+    <h2 class="section-title reveal">Flagship <span class="gold">Project</span></h2>
+    <div class="section-line reveal"></div>
+  </div>
+  <div class="feat-proj reveal">
+    <div class="feat-img"><img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1000&q=90" alt="Pilbara"></div>
+    <div class="feat-body">
+      <span class="feat-eyebrow">Iron Ore · Western Australia · 2025</span>
+      <h2 class="feat-title">Pilbara Iron Ore Expansion — Phase III</h2>
+      <p class="feat-desc">The Pilbara Phase III expansion represents STACKLY's most technically ambitious project — a $2.4 billion program to extend the life of our flagship Western Australian iron ore complex by 30 years and increase annual export capacity to 80 million tonnes, deploying 240 autonomous haulage vehicles.</p>
+      <div class="feat-specs">
+        <div class="feat-spec"><div class="feat-spec-label">Project Value</div><div class="feat-spec-val">$2.4 Billion AUD</div></div>
+        <div class="feat-spec"><div class="feat-spec-label">Annual Capacity</div><div class="feat-spec-val">80 Mtpa Iron Ore</div></div>
+        <div class="feat-spec"><div class="feat-spec-label">Mine Life</div><div class="feat-spec-val">30 Years Extended</div></div>
+        <div class="feat-spec"><div class="feat-spec-label">Autonomous Fleet</div><div class="feat-spec-val">240 AHS Trucks</div></div>
+        <div class="feat-spec"><div class="feat-spec-label">Jobs Created</div><div class="feat-spec-val">2,400 Direct</div></div>
+        <div class="feat-spec"><div class="feat-spec-label">Completion</div><div class="feat-spec-val">On-Time, On-Budget</div></div>
+      </div>
+      <div class="feat-btns">
+        <a href="error.html" class="btn-primary">Discuss a Similar Project</a>
+        <a href="error.html" class="btn-outline">Download Case Study</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <h2 class="cta-title reveal">YOUR PROJECT <span class="gold">AWAITS</span></h2>
+  <p class="cta-text reveal">From feasibility study to first ore, STACKLY delivers world-class mining outcomes.</p>
+  <div class="cta-buttons reveal">
+    <a href="error.html" class="btn-primary">Start a Conversation →</a>
+    <a href="error.html" class="btn-outline">Meet the Team</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <img src="./assets/stackly-removebg-preview.webp" alt="STACKLY" style="height:32px;filter:brightness(1.1);">
+      <p>STACKLY Mining &amp; Industry — powering the world's most critical resources with 25+ years of engineering excellence, safety leadership, and sustainable operations across 48 countries.</p>
+      <div class="socials-row">
+        <a href="error.html" class="social-btn" title="X"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622Zm-1.161 17.52h1.833L7.084 4.126H5.117Z"/></svg></a>
+        <a href="error.html" class="social-btn" title="Facebook"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+        <a href="error.html" class="social-btn" title="LinkedIn"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+        <a href="error.html" class="social-btn" title="YouTube"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="index.html">→ Home</a></li>
+        <li><a href="about.html">→ About Us</a></li>
+        <li><a href="services.html">→ Services</a></li>
+        <li><a href="projects.html">→ Projects</a></li>
+        <li><a href="blog.html">→ News &amp; Blog</a></li>
+        <li><a href="contact.html">→ Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="error.html">→ Surface Mining</a></li>
+        <li><a href="error.html">→ Underground Mining</a></li>
+        <li><a href="error.html">→ Mineral Processing</a></li>
+        <li><a href="error.html">→ Geological Surveys</a></li>
+        <li><a href="error.html">→ Mine Automation</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <ul>
+        <li><span class="footer-static">📍 MMR Complex, Salem, Tamil Nadu</span></li>
+        <li><a href="tel:+919876543210">📞 +91 98765 43210</a></li>
+        <li><a href="mailto:info@stackly.com">✉ info@stackly.com</a></li>
+        <li><span class="footer-static">🕐 Mon–Fri 08:00–18:00 IST</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 STACKLY Mining &amp; Industry. All rights reserved.</p>
+    <div class="footer-bottom-links">
+      <a href="error.html">Privacy Policy</a>
+      <a href="error.html">Terms of Use</a>
+      <a href="error.html">Sitemap</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+const canvas=document.getElementById("bg-canvas");
+const ctx=canvas.getContext("2d");
+let pts=[];
+function rsz(){canvas.width=innerWidth;canvas.height=innerHeight;}rsz();
+window.addEventListener("resize",rsz);
+class P{constructor(){this.r();}r(){this.x=Math.random()*canvas.width;this.y=Math.random()*canvas.height;this.vx=(Math.random()-.5)*.4;this.vy=(Math.random()-.5)*.4;this.s=Math.random()*1.3+.3;this.a=Math.random()*.44+.1;this.c=Math.random()>.7?"#D4A017":"#fff";}
+u(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>canvas.width||this.y<0||this.y>canvas.height)this.r();}
+d(){ctx.beginPath();ctx.arc(this.x,this.y,this.s,0,Math.PI*2);ctx.fillStyle=this.c;ctx.globalAlpha=this.a;ctx.fill();}}
+for(let i=0;i<110;i++)pts.push(new P());
+function ac(){ctx.clearRect(0,0,canvas.width,canvas.height);pts.forEach(p=>{p.u();p.d();});ctx.globalAlpha=1;
+for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<100){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(212,160,23,${(1-d/100)*.12})`;ctx.lineWidth=.5;ctx.stroke();}}requestAnimationFrame(ac);}ac();
+
+window.addEventListener("scroll",()=>{document.getElementById("navbar").classList.toggle("scrolled",scrollY>80);});
+function toggleMenu(){document.getElementById("mobileMenu").classList.toggle("open");document.getElementById("hamburger").classList.toggle("is-open");}
+
+function setupReveal(){
+  const isMobile=window.innerWidth<=1024;
+  gsap.utils.toArray('.reveal').forEach(el=>{
+    gsap.fromTo(el,{opacity:0,y:44},{opacity:1,y:0,duration:.85,ease:"power3.out",scrollTrigger:{trigger:el,start:"top 88%",toggleActions:"play none none none"}});
+  });
+  gsap.utils.toArray('.reveal-left').forEach(el=>{
+    gsap.fromTo(el,isMobile?{opacity:0,y:30}:{opacity:0,x:-60},{opacity:1,x:0,y:0,duration:.85,ease:"power3.out",scrollTrigger:{trigger:el,start:"top 88%",toggleActions:"play none none none"}});
+  });
+  gsap.utils.toArray('.reveal-right').forEach(el=>{
+    gsap.fromTo(el,isMobile?{opacity:0,y:30}:{opacity:0,x:60},{opacity:1,x:0,y:0,duration:.85,ease:"power3.out",scrollTrigger:{trigger:el,start:"top 88%",toggleActions:"play none none none"}});
+  });
+  gsap.utils.toArray('.reveal-scale').forEach(el=>{
+    gsap.fromTo(el,{opacity:0,scale:.85},{opacity:1,scale:1,duration:.85,ease:"power3.out",scrollTrigger:{trigger:el,start:"top 88%",toggleActions:"play none none none"}});
+  });
+}
+setupReveal();
+</script>
+<script>
+/* Hero entrance — NO skewY on the word containing J/P/g descenders.
+   Use skewX instead (horizontal skew) which doesn't affect descender height,
+   or simply omit skew on ht2 and use a clean vertical slide only.        */
+const tl=gsap.timeline({delay:.2});
+tl.fromTo('#ey1',{opacity:0,y:24},{opacity:1,y:0,duration:.65})
+  .fromTo('#ht1',{opacity:0,y:60,skewY:3},{opacity:1,y:0,skewY:0,duration:.8,ease:'power4.out'},'-=.2')
+  .fromTo('#ht2',{opacity:0,y:60},        {opacity:1,y:0,          duration:.8,ease:'power4.out'},'-=.55');
+/* ht2 has NO skewY — "PROJECTS" contains J and other descenders that
+   visually "sink" when skewY is applied at large font sizes            */
+
+document.querySelectorAll('[data-count]').forEach(el=>{
+  ScrollTrigger.create({trigger:el,start:'top 90%',once:true,onEnter:()=>{
+    const t=parseInt(el.getAttribute('data-count'));
+    gsap.fromTo({v:0},{v:t},{duration:2,ease:'power2.out',onUpdate:function(){el.textContent=Math.round(this.targets()[0].v).toLocaleString();}});
+  }});
+});
+gsap.utils.toArray('.proj').forEach((p,i)=>{
+  gsap.fromTo(p,{opacity:0,y:36},{opacity:1,y:0,duration:.58,delay:i*.05,scrollTrigger:{trigger:p,start:'top 92%',toggleActions:'play none none none'}});
+});
+function filterProj(cat,btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#projGrid .proj').forEach(p=>{
+    const show=cat==='all'||p.dataset.cat===cat;
+    if(show){p.style.display='';gsap.fromTo(p,{opacity:0,y:20},{opacity:1,y:0,duration:.38,ease:'power2.out'});}
+    else{gsap.to(p,{opacity:0,duration:.22,onComplete:()=>{p.style.display='none';}});}
+  });
+}
+</script>
+</body></html>

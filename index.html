@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STACKLY Mining & Industry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Montserrat:wght@300;400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<style>
+/* ═══════════════════════════════════════
+   ROOT TOKENS
+═══════════════════════════════════════ */
+:root{
+  --gold:#D4A017;--gold-light:#F5C842;
+  --dark:#0A0A0A;--dark-2:#111111;--dark-3:#1A1A1A;
+  --white:#F0EDE8;--gray:#888;
+  --border:rgba(212,160,23,0.15);
+  --font-display:'Playfair Display',serif;
+  --font-heading:'Montserrat',sans-serif;
+  --font-body:'Rajdhani',sans-serif;
+  --nav-h:80px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;overflow-x:hidden;width:100%;}
+body{background:var(--dark);color:var(--white);font-family:var(--font-body);overflow-x:hidden;width:100%;position:relative;}
+::selection{background:var(--gold);color:var(--dark);}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--dark);}
+::-webkit-scrollbar-thumb{background:var(--gold);}
+
+/* ═══════════════════════════════════════
+   CANVAS
+═══════════════════════════════════════ */
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.35;}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;width:100%;z-index:1000;
+  padding:0 40px;display:flex;align-items:center;justify-content:space-between;
+  height:80px;background:rgba(10,10,10,0.85);
+  backdrop-filter:blur(20px);border-bottom:1px solid rgba(212,160,23,0.15);
+  transition:all 0.4s ease;
+}
+nav.scrolled{height:60px;background:rgba(10,10,10,0.97);}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0;}
+.nav-logo-img{height:44px;max-width:180px;width:auto;filter:brightness(1.1);}
+.nav-links{display:flex;align-items:center;gap:2px;}
+.nav-links a{
+  color:var(--white);text-decoration:none;font-family:var(--font-heading);
+  font-size:0.72rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;
+  padding:8px 10px;border-radius:4px;transition:all 0.3s ease;position:relative;overflow:hidden;
+  white-space:nowrap;
+}
+.nav-links a::before{content:'';position:absolute;bottom:0;left:0;width:0;height:1px;background:var(--gold);transition:width 0.3s ease;}
+.nav-links a:hover{color:var(--gold);}
+.nav-links a:hover::before,.nav-links a.active::before{width:100%;}
+.nav-links a.active{color:var(--gold);}
+.nav-cta{background:var(--gold);color:var(--dark)!important;font-weight:700!important;padding:9px 18px!important;border-radius:4px;}
+.nav-cta:hover{background:var(--gold-light)!important;transform:translateY(-1px);}
+.hamburger{
+  display:none;flex-direction:column;justify-content:center;align-items:center;
+  width:40px;height:40px;cursor:pointer;padding:4px;
+  position:relative;flex-shrink:0;z-index:1001;
+}
+.hamburger span{
+  display:block;width:26px;height:2px;background:var(--gold);border-radius:1px;
+  position:absolute;transition:transform 0.35s cubic-bezier(0.23,1,0.32,1),opacity 0.25s ease;transform-origin:center;
+}
+.hamburger span:nth-child(1){transform:translateY(-7px);}
+.hamburger span:nth-child(2){transform:translateY(0);}
+.hamburger span:nth-child(3){transform:translateY(7px);}
+.hamburger.is-open span:nth-child(1){transform:translateY(0) rotate(45deg);}
+.hamburger.is-open span:nth-child(2){opacity:0;transform:scaleX(0);}
+.hamburger.is-open span:nth-child(3){transform:translateY(0) rotate(-45deg);}
+.mobile-menu{
+  display:none;position:fixed;top:80px;left:0;width:100%;
+  background:rgba(10,10,10,0.98);backdrop-filter:blur(20px);
+  padding:30px;flex-direction:column;gap:8px;
+  border-bottom:1px solid rgba(212,160,23,0.2);z-index:999;
+}
+.mobile-menu.open{display:flex;}
+.mobile-menu a{
+  color:var(--white);text-decoration:none;font-family:var(--font-heading);
+  font-size:1rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;
+  padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.07);transition:color 0.3s;
+}
+.mobile-menu a:hover{color:var(--gold);}
+
+/* ═══════════════════════════════════════
+   HERO
+═══════════════════════════════════════ */
+.hero{
+  position:relative;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  overflow:hidden;z-index:1;
+  padding-top:var(--nav-h);
+  padding-bottom:160px;
+}
+.hero-bg{
+  position:absolute;inset:0;z-index:0;
+  background-image:url('https://images.unsplash.com/photo-1523848309072-c199db53f137?q=80&w=2070&auto=format&fit=crop');
+  background-size:cover;background-position:center;filter:brightness(0.18);
+}
+.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,10,10,0.7) 0%,rgba(10,10,10,0.4) 50%,rgba(10,10,10,0.8) 100%);}
+.hero-grid{
+  position:absolute;inset:0;z-index:1;
+  background-image:linear-gradient(rgba(212,160,23,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(212,160,23,0.06) 1px,transparent 1px);
+  background-size:60px 60px;animation:gridShift 20s linear infinite;
+}
+@keyframes gridShift{0%{background-position:0 0}100%{background-position:60px 60px}}
+.hero-dust{
+  position:absolute;inset:0;z-index:2;
+  background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(212,160,23,0.08) 0%,transparent 70%);
+  animation:heroPulse 4s ease-in-out infinite;
+}
+@keyframes heroPulse{0%,100%{opacity:0.6}50%{opacity:1}}
+
+.hero-content{
+  position:relative;z-index:3;text-align:center;
+  width:100%;max-width:1100px;padding:40px 40px 0;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:12px;
+  font-family:var(--font-heading);font-size:0.72rem;font-weight:700;
+  letter-spacing:4px;text-transform:uppercase;color:var(--gold);
+  margin-bottom:28px;opacity:0;
+}
+.hero-eyebrow::before,.hero-eyebrow::after{content:'';display:block;width:36px;height:1px;background:var(--gold);}
+.hero-title{
+  font-family:var(--font-display);font-size:clamp(3rem,8vw,7rem);
+  line-height:1;letter-spacing:2px;color:var(--white);margin-bottom:16px;overflow:hidden;
+}
+.hero-title .gold{color:var(--gold);}
+.hero-title span{display:inline-block;}
+.hero-subtitle{
+  font-family:var(--font-heading);font-size:clamp(1rem,2.5vw,1.6rem);
+  font-weight:400;color:var(--gray);letter-spacing:2px;margin-bottom:24px;opacity:0;
+}
+.hero-typed-wrap{
+  font-family:var(--font-heading);font-size:clamp(1rem,3vw,1.8rem);
+  font-weight:700;color:var(--gold-light);letter-spacing:1px;
+  margin-bottom:36px;min-height:2.2rem;
+}
+#typed-text::after{content:'|';animation:blink 0.7s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+.hero-cta-row{
+  display:flex;gap:16px;justify-content:center;flex-wrap:wrap;opacity:0;
+}
+
+/* ═══════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════ */
+.btn-primary{
+  background:var(--gold);color:var(--dark);font-family:var(--font-heading);
+  font-size:0.88rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  padding:15px 40px;border:none;cursor:pointer;border-radius:3px;
+  text-decoration:none;display:inline-block;
+  transition:background 0.3s,transform 0.3s,box-shadow 0.3s;
+  position:relative;overflow:hidden;
+}
+.btn-primary::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(45deg,transparent 30%,rgba(255,255,255,0.28) 50%,transparent 70%);
+  transform:translateX(-100%);transition:transform 0.5s;
+}
+.btn-primary:hover::before{transform:translateX(100%);}
+.btn-primary:hover{background:var(--gold-light);transform:translateY(-3px);box-shadow:0 14px 36px rgba(212,160,23,0.38);}
+
+.btn-outline{
+  border:1px solid rgba(212,160,23,0.6);color:var(--white);
+  font-family:var(--font-heading);font-size:0.88rem;font-weight:600;
+  letter-spacing:2px;text-transform:uppercase;padding:15px 40px;
+  background:transparent;cursor:pointer;border-radius:3px;
+  text-decoration:none;display:inline-block;transition:all 0.3s;
+}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);background:rgba(212,160,23,0.08);transform:translateY(-3px);}
+
+/* ═══════════════════════════════════════
+   HERO STATS BAR
+═══════════════════════════════════════ */
+.hero-stats{
+  position:absolute;bottom:0;left:0;right:0;
+  display:flex;justify-content:center;z-index:3;padding:0 60px;
+}
+.hero-stats-inner{
+  display:flex;border:1px solid rgba(212,160,23,0.2);border-bottom:none;
+  background:rgba(10,10,10,0.88);backdrop-filter:blur(20px);
+  border-radius:4px 4px 0 0;overflow:hidden;width:100%;max-width:900px;
+}
+.stat-item{
+  flex:1;padding:20px 24px;text-align:center;
+  border-right:1px solid rgba(212,160,23,0.12);transition:background 0.3s;
+}
+.stat-item:last-child{border-right:none;}
+.stat-item:hover{background:rgba(212,160,23,0.06);}
+.stat-num{font-family:var(--font-display);font-size:2.6rem;color:var(--gold);display:block;line-height:1;}
+.stat-label{font-family:var(--font-heading);font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-top:5px;display:block;}
+
+/* ═══════════════════════════════════════
+   SECTION COMMONS
+═══════════════════════════════════════ */
+section{position:relative;z-index:1;}
+.section-pad{padding:110px 60px;}
+.section-header{text-align:center;margin-bottom:72px;}
+.section-eyebrow{
+  display:inline-block;font-family:var(--font-heading);font-size:0.68rem;font-weight:700;
+  letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;
+}
+.section-title{font-family:var(--font-display);font-size:clamp(2.4rem,5vw,4.8rem);line-height:1;color:var(--white);letter-spacing:1px;}
+.section-title .gold{color:var(--gold);}
+.section-line{width:56px;height:2px;background:var(--gold);margin:22px auto 0;position:relative;}
+.section-line::before{content:'';position:absolute;left:-28px;top:-2px;width:18px;height:6px;border:2px solid var(--gold);}
+
+/* ═══════════════════════════════════════
+   TICKER STRIP
+═══════════════════════════════════════ */
+.about-strip{
+  background:var(--dark-3);overflow:hidden;
+  max-width:100vw;
+  border-top:1px solid rgba(212,160,23,0.1);
+  border-bottom:1px solid rgba(212,160,23,0.1);
+}
+.ticker-wrap{display:flex;animation:ticker 30s linear infinite;white-space:nowrap;padding:20px 0;}
+.ticker-item{
+  display:inline-flex;align-items:center;gap:20px;padding:0 36px;
+  font-family:var(--font-heading);font-size:0.88rem;font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;color:var(--gray);
+}
+.ticker-item .dot{color:var(--gold);font-size:1.2rem;}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ═══════════════════════════════════════
+   ABOUT
+═══════════════════════════════════════ */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
+.about-img-wrap{position:relative;border-radius:3px;overflow:hidden;aspect-ratio:4/5;}
+.about-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform 0.8s;}
+.about-img-wrap:hover img{transform:scale(1.05);}
+.about-img-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,10,10,0.65) 0%,transparent 50%);pointer-events:none;}
+.about-img-badge{
+  position:absolute;bottom:28px;right:-16px;
+  background:var(--gold);color:var(--dark);padding:22px 26px;
+  font-family:var(--font-display);font-size:2.6rem;line-height:1;
+  text-align:center;border-radius:3px;box-shadow:0 18px 50px rgba(212,160,23,0.4);
+}
+.about-img-badge span{display:block;font-family:var(--font-body);font-size:0.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-top:4px;}
+.about-eyebrow{font-family:var(--font-heading);font-size:0.68rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;display:block;}
+.about-title{font-family:var(--font-display);font-size:clamp(2.2rem,3.8vw,4rem);line-height:1.05;margin-bottom:24px;}
+.about-title .gold{color:var(--gold);}
+.about-text{color:#999;line-height:1.82;font-size:0.94rem;margin-bottom:22px;}
+.about-features{display:flex;flex-direction:column;gap:14px;margin-bottom:36px;}
+.feature-row{display:flex;align-items:flex-start;gap:14px;}
+.feature-icon{
+  width:40px;height:40px;min-width:40px;
+  background:rgba(212,160,23,0.1);border:1px solid rgba(212,160,23,0.28);
+  border-radius:4px;display:flex;align-items:center;justify-content:center;
+  font-size:1rem;transition:all 0.3s;
+}
+.feature-row:hover .feature-icon{background:var(--gold);color:var(--dark);}
+.feature-text h4{font-family:var(--font-heading);font-size:0.95rem;font-weight:700;letter-spacing:0.5px;margin-bottom:3px;}
+.feature-text p{color:#777;font-size:0.83rem;line-height:1.6;}
+
+/* ═══════════════════════════════════════
+   SERVICES
+═══════════════════════════════════════ */
+.services-bg{background:var(--dark-2);}
+.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.service-card{
+  background:var(--dark-3);padding:44px 36px;
+  position:relative;overflow:hidden;cursor:pointer;transition:all 0.4s;
+}
+.service-card::before{
+  content:'';position:absolute;bottom:0;left:0;width:100%;height:3px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-light));
+  transform:scaleX(0);transform-origin:left;transition:transform 0.4s;
+}
+.service-card:hover::before{transform:scaleX(1);}
+.service-card:hover{background:#1c1c1c;transform:translateY(-4px);}
+.service-number{font-family:var(--font-display);font-size:4.5rem;color:rgba(212,160,23,0.07);position:absolute;top:18px;right:24px;line-height:1;transition:color 0.4s;}
+.service-card:hover .service-number{color:rgba(212,160,23,0.16);}
+.service-icon{width:58px;height:58px;border:1px solid rgba(212,160,23,0.28);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:var(--gold);margin-bottom:24px;background:rgba(212,160,23,0.06);transition:all 0.4s;}
+.service-card:hover .service-icon{background:var(--gold);color:var(--dark);transform:rotate(5deg);}
+.service-title{font-family:var(--font-heading);font-size:1.28rem;font-weight:700;letter-spacing:0.5px;margin-bottom:12px;}
+.service-desc{color:#777;font-size:0.86rem;line-height:1.8;margin-bottom:24px;}
+.service-link{color:var(--gold);font-family:var(--font-heading);font-size:0.74rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:gap 0.3s;}
+.service-link:hover{gap:14px;}
+.service-img{width:100%;height:190px;object-fit:cover;border-radius:2px;margin-bottom:22px;transition:transform 0.5s;display:block;overflow:hidden;}
+.service-card:hover .service-img{transform:scale(1.04);}
+
+/* ═══════════════════════════════════════
+   STATS BAND
+═══════════════════════════════════════ */
+.stats-section{background:var(--gold);padding:80px 60px;position:relative;overflow:hidden;}
+.stats-inner{display:grid;grid-template-columns:repeat(4,1fr);gap:40px;text-align:center;}
+.stats-num{font-family:var(--font-display);font-size:4.2rem;color:var(--dark);line-height:1;display:block;}
+.stats-label{font-family:var(--font-heading);font-size:0.72rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(10,10,10,0.62);margin-top:8px;display:block;}
+
+/* ═══════════════════════════════════════
+   PROJECTS
+═══════════════════════════════════════ */
+.projects-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:3px;}
+.project-card{position:relative;overflow:hidden;aspect-ratio:16/10;cursor:pointer;}
+.project-card img{width:100%;height:100%;object-fit:cover;transition:transform 0.7s;}
+.project-card:hover img{transform:scale(1.08);}
+.project-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,10,10,0.97) 0%,rgba(10,10,10,0.55) 55%,rgba(10,10,10,0.1) 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:36px;}
+.project-cat{font-family:var(--font-heading);font-size:0.64rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:7px;}
+.project-title{font-family:var(--font-heading);font-size:1.35rem;font-weight:700;margin-bottom:9px;transform:translateY(18px);transition:transform 0.4s;}
+.project-card:hover .project-title{transform:translateY(0);}
+.project-desc{color:#bbb;font-size:0.84rem;line-height:1.6;opacity:0;transform:translateY(18px);transition:all 0.4s 0.08s;}
+.project-card:hover .project-desc{opacity:1;transform:translateY(0);}
+.project-arrow{position:absolute;top:24px;right:24px;width:42px;height:42px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--dark);font-size:1rem;font-weight:700;transform:scale(0) rotate(-45deg);transition:transform 0.4s;}
+.project-card:hover .project-arrow{transform:scale(1) rotate(0);}
+.project-card.featured{grid-column:span 2;aspect-ratio:21/9;}
+
+/* ═══════════════════════════════════════
+   PROCESS
+═══════════════════════════════════════ */
+.process-section{background:var(--dark-3);position:relative;overflow:hidden;}
+.process-section::before{content:'';position:absolute;inset:0;background-image:url('./assets/index.webp');background-size:cover;background-position:center;opacity:0.04;pointer-events:none;}
+.process-steps{display:grid;grid-template-columns:repeat(4,1fr);position:relative;}
+.process-steps::before{content:'';position:absolute;top:41px;left:12.5%;right:12.5%;height:1px;background:linear-gradient(90deg,var(--gold) 0%,rgba(212,160,23,0.15) 100%);z-index:0;}
+.process-step{text-align:center;padding:0 24px 40px;position:relative;z-index:1;}
+.step-num{width:82px;height:82px;border-radius:50%;border:2px solid var(--gold);background:var(--dark-3);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.9rem;color:var(--gold);margin:0 auto 24px;transition:all 0.4s;}
+.process-step:hover .step-num{background:var(--gold);color:var(--dark);transform:scale(1.08);}
+.step-title{font-family:var(--font-heading);font-size:1.05rem;font-weight:700;letter-spacing:0.5px;margin-bottom:10px;}
+.step-desc{color:#777;font-size:0.83rem;line-height:1.72;}
+
+/* ═══════════════════════════════════════
+   TESTIMONIALS
+═══════════════════════════════════════ */
+.testimonials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+.testimonial-card{background:var(--dark-3);border:1px solid rgba(212,160,23,0.1);padding:40px 34px;border-radius:3px;transition:all 0.4s;position:relative;overflow:hidden;}
+.testimonial-card::before{content:'"';position:absolute;top:8px;right:20px;font-family:var(--font-display);font-size:7rem;color:rgba(212,160,23,0.06);line-height:1;}
+.testimonial-card:hover{border-color:rgba(212,160,23,0.38);transform:translateY(-5px);}
+.stars{color:var(--gold);font-size:0.85rem;letter-spacing:3px;margin-bottom:18px;}
+.testimonial-text{color:#aaa;font-size:0.9rem;line-height:1.82;font-style:italic;margin-bottom:26px;}
+.testimonial-author{display:flex;align-items:center;gap:13px;}
+.author-avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);}
+.author-name{font-family:var(--font-heading);font-size:0.95rem;font-weight:700;}
+.author-role{font-family:var(--font-heading);font-size:0.72rem;color:var(--gold);letter-spacing:1px;margin-top:2px;}
+
+/* ═══════════════════════════════════════
+   CLIENTS
+═══════════════════════════════════════ */
+.clients-section{background:var(--dark-3);padding:80px 60px;overflow:hidden;max-width:100vw;}
+.clients-track{display:flex;animation:slide 25s linear infinite;}
+.client-logo{min-width:160px;height:76px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.3rem;color:rgba(255,255,255,0.18);letter-spacing:3px;border-right:1px solid rgba(255,255,255,0.06);padding:0 36px;transition:color 0.3s;cursor:pointer;white-space:nowrap;}
+.client-logo:hover{color:var(--gold);}
+@keyframes slide{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ═══════════════════════════════════════
+   BLOG
+═══════════════════════════════════════ */
+.blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.blog-card{background:var(--dark-3);border-radius:3px;overflow:hidden;transition:all 0.4s;border:1px solid rgba(255,255,255,0.04);}
+.blog-card:hover{transform:translateY(-7px);border-color:rgba(212,160,23,0.2);box-shadow:0 28px 70px rgba(0,0,0,0.5);}
+.blog-img-wrap{overflow:hidden;}
+.blog-img{width:100%;height:210px;object-fit:cover;transition:transform 0.6s;display:block;}
+.blog-card:hover .blog-img{transform:scale(1.06);}
+.blog-body{padding:28px;}
+.blog-cat{font-family:var(--font-heading);font-size:0.62rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:block;}
+.blog-title{font-family:var(--font-heading);font-size:1.12rem;font-weight:700;line-height:1.4;margin-bottom:10px;transition:color 0.3s;}
+.blog-card:hover .blog-title{color:var(--gold);}
+.blog-excerpt{color:#777;font-size:0.84rem;line-height:1.72;margin-bottom:18px;}
+.blog-meta{display:flex;align-items:center;gap:12px;font-size:0.73rem;color:var(--gray);}
+
+/* ═══════════════════════════════════════
+   GALLERY STRIP
+═══════════════════════════════════════ */
+.gallery-strip{display:grid;grid-template-columns:repeat(4,1fr);overflow:hidden;position:relative;z-index:2;}
+.gallery-tile{
+  position:relative;cursor:pointer;overflow:hidden;
+  background-size:cover;background-position:center;
+  height:300px;
+  filter:brightness(0.62);transition:filter 0.4s;
+}
+.gallery-tile:hover{filter:brightness(1);}
+.gallery-tile::before{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.86) 0%,transparent 55%);z-index:1;}
+.gallery-caption{
+  position:absolute;left:0;right:0;bottom:0;z-index:2;
+  padding:14px 16px;font-family:var(--font-heading);font-size:0.72rem;
+  font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--white);
+  pointer-events:none;
+}
+.gallery-desc{
+  position:absolute;inset:0;z-index:3;background:rgba(10,10,10,0.92);
+  padding:22px 18px;display:flex;align-items:center;
+  font-family:var(--font-body);font-size:0.87rem;line-height:1.75;color:#ccc;
+  opacity:0;pointer-events:none;transition:opacity 0.35s;
+}
+.gallery-tile.open .gallery-desc{opacity:1;pointer-events:auto;}
+
+/* ═══════════════════════════════════════
+   CTA BAND
+═══════════════════════════════════════ */
+.cta-band{
+  padding:100px 60px;text-align:center;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,var(--dark-3) 0%,#1A1208 100%);
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+}
+.cta-band::before{
+  content:'';position:absolute;top:50%;left:50%;
+  width:600px;height:600px;border-radius:50%;
+  background:radial-gradient(circle,rgba(212,160,23,0.07) 0%,transparent 70%);
+  transform:translate(-50%,-50%);animation:pulseRing 3s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes pulseRing{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.18)}}
+.cta-title{font-family:var(--font-display);font-size:clamp(2.4rem,6vw,5.8rem);line-height:1.05;margin-bottom:16px;position:relative;z-index:1;}
+.cta-title .gold{color:var(--gold);}
+.cta-text{color:#888;font-size:clamp(0.94rem,2.2vw,1.08rem);line-height:1.7;margin-bottom:40px;position:relative;z-index:1;}
+.cta-buttons{
+  display:flex;gap:16px;justify-content:center;flex-wrap:wrap;
+  position:relative;z-index:1;
+}
+
+/* ═══════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════ */
+footer{background:var(--dark-2);border-top:1px solid var(--border);padding:80px 60px 0;position:relative;z-index:2;}
+.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:48px;margin-bottom:56px;}
+.footer-brand p{color:var(--gray);font-family:var(--font-heading);font-size:13px;line-height:1.8;margin-top:14px;max-width:280px;}
+.footer-col h4{font-family:var(--font-heading);font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:18px;font-weight:700;}
+.footer-col ul{list-style:none;display:flex;flex-direction:column;gap:9px;}
+.footer-col a{color:var(--gray);text-decoration:none;font-family:var(--font-heading);font-size:13px;transition:color 0.3s;}
+.footer-col a:hover{color:var(--gold);}
+.footer-static{color:var(--gray);font-family:var(--font-heading);font-size:13px;display:inline-block;}
+.socials-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;}
+.social-btn{width:38px;height:38px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--gray);text-decoration:none;transition:all 0.3s;}
+.social-btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(212,160,23,0.08);}
+.footer-bottom{border-top:1px solid var(--border);padding:22px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:0;}
+.footer-bottom p{color:var(--gray);font-family:var(--font-heading);font-size:12px;}
+.footer-bottom-links{display:flex;gap:22px;flex-wrap:wrap;}
+.footer-bottom-links a{color:var(--gray);font-family:var(--font-heading);font-size:12px;text-decoration:none;transition:color 0.3s;}
+.footer-bottom-links a:hover{color:var(--gold);}
+
+/* ═══════════════════════════════════════
+   SCROLL REVEAL STATES
+═══════════════════════════════════════ */
+.reveal{opacity:0;transform:translateY(48px);}
+.reveal-left{opacity:0;transform:translateX(-64px);}
+.reveal-right{opacity:0;transform:translateX(64px);}
+.reveal-scale{opacity:0;transform:scale(0.84);}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE — COMPLETE OVERHAUL
+═══════════════════════════════════════ */
+
+/* ── 1280px ── */
+@media(max-width:1280px){
+  nav{padding:0 40px;}
+  footer{padding:70px 40px 0;}
+  .section-pad{padding:100px 40px;}
+  .stats-section{padding:70px 40px;}
+  .clients-section{padding:70px 40px;}
+  .cta-band{padding:90px 40px;}
+  .hero-stats{padding:0 40px;}
+  .services-grid{grid-template-columns:repeat(2,1fr);}
+  .stats-inner{grid-template-columns:repeat(2,1fr);gap:28px;}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:36px;}
+}
+
+/* ── 1200px ── */
+@media(max-width:1200px){
+  nav{padding:0 30px;}
+  .nav-links{gap:0;}
+  .nav-links a{padding:8px 8px;font-size:0.68rem;letter-spacing:0.8px;}
+  .nav-cta{padding:8px 14px!important;}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:36px;}
+}
+
+/* ── 1024px — hamburger kicks in ── */
+@media(max-width:1023px){
+  nav{padding:0 24px;}
+  .nav-links{display:none;}
+  .hamburger{display:flex;}
+  .mobile-menu{top:80px;}
+  .section-pad{padding:80px 32px;}
+  .gallery-strip{grid-template-columns:1fr 1fr;}
+  .gallery-tile{height:220px;}
+}
+
+/* ═══════════════════════════════════════
+   768px — TABLET / LARGE PHONE  (FIXED)
+═══════════════════════════════════════ */
+@media(max-width:768px){
+  :root{--nav-h:64px;}
+
+  /* NAV */
+  nav{padding:0 18px;height:64px;}
+  nav.scrolled{height:54px;}
+  .nav-logo-img{height:36px;max-width:140px;}
+  .mobile-menu{top:64px;padding:24px 18px;}
+
+  /* SECTION PADDING — consistent across all sections */
+  .section-pad{padding:64px 20px;}
+  .stats-section{padding:56px 20px;}
+  .clients-section{padding:56px 20px;}
+  .cta-band{padding:68px 20px;}
+
+  /* HERO */
+  .hero{padding-top:64px;padding-bottom:20px;}
+  .hero-stats{display:none;}
+  .hero-content{padding:24px 20px 0;}
+  .hero-title{font-size:clamp(2.4rem,10vw,4rem);}
+  .hero-subtitle{font-size:clamp(0.85rem,3.2vw,1.2rem);letter-spacing:1px;}
+  .hero-typed-wrap{font-size:clamp(0.85rem,3.2vw,1.3rem);margin-bottom:28px;}
+  .hero-eyebrow{font-size:0.6rem;letter-spacing:2px;margin-bottom:20px;}
+  .hero-cta-row{flex-direction:column;align-items:center;gap:12px;}
+  .hero-cta-row .btn-primary,
+  .hero-cta-row .btn-outline{width:100%;max-width:300px;text-align:center;padding:14px 24px;}
+
+  /* SECTION TYPOGRAPHY */
+  .section-title{font-size:clamp(1.8rem,7.5vw,2.8rem);}
+  .section-header{margin-bottom:40px;}
+
+  /* ── ABOUT — single column, image on top ── */
+  .about-grid{
+    grid-template-columns:1fr;
+    gap:0;
+  }
+  /* Image block: show at full width, reasonable height */
+  .about-img-wrap{
+    width:100%;
+    aspect-ratio:16/10;
+    border-radius:3px;
+    margin-bottom:32px;
+  }
+  /* Badge: reposition so it stays inside the image */
+  .about-img-badge{
+    right:16px;
+    bottom:16px;
+    font-size:1.8rem;
+    padding:14px 18px;
+  }
+  .about-title{font-size:clamp(1.8rem,7vw,2.6rem);}
+  .about-text{font-size:0.9rem;}
+  /* Feature rows: keep icon + text side by side but ensure wrapping is clean */
+  .feature-row{gap:12px;align-items:flex-start;}
+  .feature-icon{width:38px;height:38px;min-width:38px;font-size:0.95rem;}
+  .feature-text h4{font-size:0.9rem;}
+  .feature-text p{font-size:0.8rem;}
+
+  /* SERVICES */
+  .services-grid{grid-template-columns:1fr;}
+  .service-card{padding:32px 24px;}
+  .service-img{height:180px;}
+
+  /* STATS */
+  .stats-inner{grid-template-columns:1fr 1fr;gap:20px;}
+  .stats-num{font-size:2.8rem;}
+  .stats-label{font-size:0.62rem;letter-spacing:1.5px;}
+
+  /* PROJECTS */
+  .projects-grid{grid-template-columns:1fr;}
+  .project-card.featured{grid-column:span 1;aspect-ratio:16/9;}
+  .project-card{aspect-ratio:4/3;}
+  /* overlay: tighter padding so text doesn't overflow the image */
+  .project-overlay{padding:20px 18px;}
+  .project-cat{font-size:0.58rem;letter-spacing:2px;margin-bottom:5px;}
+  .project-title{font-size:0.95rem;line-height:1.3;transform:translateY(0);margin-bottom:6px;}
+  /* description: always visible on touch but smaller */
+  .project-desc{opacity:1;transform:translateY(0);font-size:0.76rem;line-height:1.5;}
+  /* arrow: hide on mobile (saves space, not tappable anyway) */
+  .project-arrow{display:none;}
+
+  /* PROCESS */
+  .process-steps{grid-template-columns:1fr 1fr;gap:0;}
+  .process-steps::before{display:none;}
+  .process-step{padding:24px 16px;}
+  .step-num{width:64px;height:64px;font-size:1.5rem;}
+  .step-title{font-size:0.95rem;}
+  .step-desc{font-size:0.8rem;}
+
+  /* ── TESTIMONIALS — single column on mobile ── */
+  .testimonials-grid{
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+  .testimonial-card{
+    padding:28px 24px;
+    overflow:visible;/* prevent text clipping */
+  }
+  .testimonial-text{font-size:0.88rem;line-height:1.75;}
+  .testimonial-card::before{font-size:5rem;top:4px;right:14px;}
+
+  /* CLIENTS */
+  .client-logo{min-width:120px;font-size:1rem;padding:0 24px;}
+
+  /* ── BLOG — single column on mobile ── */
+  .blog-grid{
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+  .blog-img{height:200px;}
+  .blog-body{padding:22px 18px;}
+  .blog-title{font-size:1rem;}
+  .blog-excerpt{font-size:0.82rem;}
+
+  /* GALLERY */
+  .gallery-strip{grid-template-columns:1fr 1fr;}
+  .gallery-tile{height:180px;filter:brightness(0.78);}
+  .gallery-caption{font-size:0.6rem;padding:8px 10px;}
+  .gallery-desc{font-size:0.78rem;padding:12px 10px;}
+
+  /* CTA */
+  .cta-title{font-size:clamp(1.9rem,8vw,3.2rem);}
+  .cta-buttons{flex-direction:column;align-items:center;gap:12px;}
+  .cta-buttons .btn-primary,
+  .cta-buttons .btn-outline{width:100%;max-width:300px;text-align:center;padding:14px 24px;}
+
+  /* FOOTER */
+  .footer-grid{grid-template-columns:1fr;gap:28px;}
+  footer{padding:52px 20px 0;}
+  .footer-brand p{max-width:100%;}
+  .footer-bottom{flex-direction:column;text-align:center;gap:10px;padding:18px 0;}
+  .footer-bottom-links{justify-content:center;flex-wrap:wrap;gap:14px;}
+  .socials-row{gap:8px;}
+}
+
+/* ═══════════════════════════════════════
+   480px — SMALL PHONES  (FIXED)
+═══════════════════════════════════════ */
+@media(max-width:480px){
+  :root{--nav-h:60px;}
+
+  /* NAV */
+  nav{padding:0 14px;height:60px;}
+  .nav-logo-img{height:30px;max-width:120px;}
+  .mobile-menu{top:60px;padding:18px 14px 26px;}
+
+  /* SECTIONS */
+  .section-pad{padding:52px 16px;}
+  .stats-section{padding:48px 16px;}
+  .cta-band{padding:56px 16px;}
+  footer{padding:44px 16px 0;}
+  .clients-section{padding:48px 16px;}
+
+  /* HERO */
+  .hero-content{padding:16px 14px 0;}
+  .hero-title{font-size:clamp(2rem,11vw,3.2rem);}
+  .hero-eyebrow{font-size:0.55rem;letter-spacing:1.5px;gap:8px;}
+  .hero-eyebrow::before,.hero-eyebrow::after{width:24px;}
+  .hero-cta-row .btn-primary,
+  .hero-cta-row .btn-outline{max-width:100%;font-size:0.8rem;padding:13px 20px;}
+
+  /* SECTION HEADERS */
+  .section-title{font-size:clamp(1.6rem,9vw,2.4rem);}
+  .cta-title{font-size:clamp(1.7rem,9vw,2.6rem);}
+  .about-title{font-size:clamp(1.6rem,8.5vw,2.2rem);}
+  .section-header{margin-bottom:32px;}
+
+  /* ABOUT */
+  .about-img-wrap{aspect-ratio:3/2;margin-bottom:24px;}
+  .about-img-badge{font-size:1.5rem;padding:12px 14px;right:12px;bottom:12px;}
+  .about-img-badge span{font-size:0.54rem;letter-spacing:1.5px;}
+  .about-features{gap:12px;margin-bottom:28px;}
+  .feature-icon{width:34px;height:34px;min-width:34px;font-size:0.88rem;}
+
+  /* SERVICES */
+  .service-card{padding:28px 20px;}
+  .service-img{height:160px;}
+  .service-title{font-size:1.1rem;}
+  .service-icon{width:48px;height:48px;font-size:1.3rem;}
+
+  /* STATS */
+  .stats-inner{grid-template-columns:1fr 1fr;gap:16px;}
+  .stats-num{font-size:2.4rem;}
+
+  /* PROCESS */
+  .process-steps{grid-template-columns:1fr;}
+  .process-step{padding:20px 12px;}
+
+  /* TESTIMONIALS */
+  .testimonial-card{padding:24px 20px;}
+  .testimonial-text{font-size:0.85rem;}
+  .author-avatar{width:40px;height:40px;}
+  .author-name{font-size:0.88rem;}
+  .author-role{font-size:0.68rem;}
+
+  /* PROJECTS — even tighter on small phones */
+  .project-overlay{padding:16px 14px;}
+  .project-title{font-size:0.88rem;}
+  .project-desc{font-size:0.72rem;}
+
+  /* BLOG */
+  .blog-img{height:180px;}
+  .blog-body{padding:18px 16px;}
+  .blog-title{font-size:0.95rem;}
+
+  /* GALLERY */
+  .gallery-strip{grid-template-columns:1fr;}
+  .gallery-tile{height:200px;}
+  .gallery-caption{font-size:0.62rem;}
+
+  /* CLIENTS */
+  .client-logo{min-width:100px;font-size:0.85rem;padding:0 18px;}
+
+  /* FOOTER */
+  .footer-bottom-links{flex-direction:column;gap:6px;align-items:center;}
+  .social-btn{width:34px;height:34px;}
+  .footer-col h4{font-size:11px;}
+  .footer-col a,.footer-static{font-size:12px;}
+}
+
+/* ── 360px — very small phones ── */
+@media(max-width:360px){
+  .hero-title{font-size:clamp(1.8rem,12vw,2.8rem);}
+  .section-title{font-size:clamp(1.5rem,9.5vw,2.2rem);}
+  .stats-inner{grid-template-columns:1fr;}
+  .stats-num{font-size:2.8rem;}
+  .process-steps{grid-template-columns:1fr;}
+}
+
+/* accessibility */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important;animation-iteration-count:1!important;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="index.html" class="nav-logo">
+    <img src="./assets/stackly-removebg-preview.webp" alt="STACKLY" class="nav-logo-img">
+  </a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="./about.html">About</a>
+    <a href="./services.html">Services</a>
+    <a href="./projects.html">Projects</a>
+    <a href="./blog.html">Blog</a>
+    <a href="./contact.html">Contact</a>
+    <a href="./login.html" class="nav-cta">Login</a>
+  </div>
+  <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Home</a>
+  <a href="./about.html">About</a>
+  <a href="./services.html">Services</a>
+  <a href="./projects.html">Projects</a>
+  <a href="blog.html">Blog</a>
+  <a href="./contact.html">Contact</a>
+  <a href="login.html">Login</a>
+</div>
+
+<!-- ══ HERO ══════════════════════════════ -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-dust"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow" id="hero-eyebrow">Established 1998 · Global Mining Excellence</div>
+    <h1 class="hero-title">
+      <span id="ht1">MINING THE</span><br>
+      <span id="ht2" class="gold">FUTURE OF</span><br>
+      <span id="ht3">INDUSTRY</span>
+    </h1>
+    <p class="hero-subtitle" id="hero-sub">Powering The World's Most Critical Resources</p>
+    <div class="hero-typed-wrap"><span id="typed-text"></span></div>
+    <div class="hero-cta-row" id="hero-cta-row">
+      <a href="error.html" class="btn-primary">Explore Projects →</a>
+      <a href="error.html" class="btn-outline">Our Story</a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stats-inner">
+      <div class="stat-item"><span class="stat-num" data-count="250">0</span><span class="stat-label">Projects Completed</span></div>
+      <div class="stat-item"><span class="stat-num" data-count="48">0</span><span class="stat-label">Countries Served</span></div>
+      <div class="stat-item"><span class="stat-num" data-count="3200">0</span><span class="stat-label">Team Members</span></div>
+      <div class="stat-item"><span class="stat-num" data-count="98">0</span><span class="stat-label">% Safety Record</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TICKER ════════════════════════════ -->
+<div class="about-strip">
+  <div class="ticker-wrap">
+    <span class="ticker-item"><span class="dot">✦</span> Coal Mining</span>
+    <span class="ticker-item"><span class="dot">✦</span> Gold Extraction</span>
+    <span class="ticker-item"><span class="dot">✦</span> Iron Ore Processing</span>
+    <span class="ticker-item"><span class="dot">✦</span> Copper Smelting</span>
+    <span class="ticker-item"><span class="dot">✦</span> Industrial Safety</span>
+    <span class="ticker-item"><span class="dot">✦</span> Geological Surveys</span>
+    <span class="ticker-item"><span class="dot">✦</span> Heavy Machinery</span>
+    <span class="ticker-item"><span class="dot">✦</span> Environmental Compliance</span>
+    <span class="ticker-item"><span class="dot">✦</span> Coal Mining</span>
+    <span class="ticker-item"><span class="dot">✦</span> Gold Extraction</span>
+    <span class="ticker-item"><span class="dot">✦</span> Iron Ore Processing</span>
+    <span class="ticker-item"><span class="dot">✦</span> Copper Smelting</span>
+    <span class="ticker-item"><span class="dot">✦</span> Industrial Safety</span>
+    <span class="ticker-item"><span class="dot">✦</span> Geological Surveys</span>
+    <span class="ticker-item"><span class="dot">✦</span> Heavy Machinery</span>
+    <span class="ticker-item"><span class="dot">✦</span> Environmental Compliance</span>
+  </div>
+</div>
+
+<!-- ══ ABOUT ═════════════════════════════ -->
+<section class="section-pad">
+  <div class="about-grid">
+    <div class="about-img-wrap reveal-left">
+      <img src="./assets/mining operations.webp" alt="Mining Operations">
+      <div class="about-img-overlay"></div>
+      <div class="about-img-badge">25+<span>Years of Excellence</span></div>
+    </div>
+    <div class="reveal-right">
+      <span class="about-eyebrow">Who We Are</span>
+      <h2 class="about-title">Pioneering Global <span class="gold">Mining Excellence</span></h2>
+      <p class="about-text">STACKLY Mining & Industry is a world-class resource extraction and industrial operations company. Since 1998, we have been at the forefront of responsible mining, combining cutting-edge technology with a relentless commitment to safety and sustainability.</p>
+      <p class="about-text">Our integrated approach covers everything from geological surveys and project planning to extraction, processing, and environmental rehabilitation — delivering exceptional value across the full mining lifecycle.</p>
+      <div class="about-features">
+        <div class="feature-row"><div class="feature-icon">⚙️</div><div class="feature-text"><h4>Advanced Technology</h4><p>AI-powered drilling systems and real-time monitoring for maximum efficiency.</p></div></div>
+        <div class="feature-row"><div class="feature-icon">🛡️</div><div class="feature-text"><h4>Zero-Harm Safety Culture</h4><p>Industry-leading safety protocols with 98% incident-free operational record.</p></div></div>
+        <div class="feature-row"><div class="feature-icon">🌱</div><div class="feature-text"><h4>Sustainable Operations</h4><p>Carbon-neutral targets by 2035 with full land rehabilitation programs.</p></div></div>
+        <div class="feature-row"><div class="feature-icon">🌍</div><div class="feature-text"><h4>Global Reach</h4><p>Active operations in 48 countries across 6 continents.</p></div></div>
+      </div>
+      <a href="error.html" class="btn-primary">Learn More About Us →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SERVICES ══════════════════════════ -->
+<section class="section-pad services-bg">
+  <div class="section-header">
+    <span class="section-eyebrow reveal">What We Do</span>
+    <h2 class="section-title reveal">Our Core <span class="gold">Services</span></h2>
+    <div class="section-line reveal"></div>
+  </div>
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <div class="service-number">01</div>
+      <img src="./assets/surface mining.webp" alt="Surface Mining" class="service-img">
+      <div class="service-icon">⛏️</div>
+      <h3 class="service-title">Surface Mining</h3>
+      <p class="service-desc">Open-pit and strip mining operations using state-of-the-art excavation equipment and precision blasting technology for maximum ore recovery.</p>
+      <a href="error.html" class="service-link">Learn More →</a>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-number">02</div>
+      <img src="./assets/underground mining.webp" alt="Underground Mining" class="service-img">
+      <div class="service-icon">🏗️</div>
+      <h3 class="service-title">Underground Mining</h3>
+      <p class="service-desc">Deep shaft and tunnel mining with advanced ventilation, support systems, and automated hauling equipment for safe, deep-ore extraction.</p>
+      <a href="error.html" class="service-link">Learn More →</a>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-number">03</div>
+      <img src="./assets/social.webp" alt="Mineral Processing" class="service-img">
+      <div class="service-icon">🔬</div>
+      <h3 class="service-title">Mineral Processing</h3>
+      <p class="service-desc">Full-scale crushing, grinding, flotation, and hydrometallurgical processing to refine raw ore into high-purity mineral concentrates.</p>
+      <a href="error.html" class="service-link">Learn More →</a>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-number">04</div>
+      <img src="./assets/geo.webp" alt="Geological Survey" class="service-img">
+      <div class="service-icon">🗺️</div>
+      <h3 class="service-title">Geological Surveys</h3>
+      <p class="service-desc">LiDAR mapping, seismic profiling, and AI-driven ore body modelling to identify and quantify mineral deposits with exceptional precision.</p>
+      <a href="error.html" class="service-link">Learn More →</a>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-number">05</div>
+      <img src="./assets/environmental.webp" alt="Environmental" class="service-img">
+      <div class="service-icon">🌿</div>
+      <h3 class="service-title">Environmental Services</h3>
+      <p class="service-desc">Complete mine closure planning, acid drainage management, water treatment, and revegetation programs to restore mined land.</p>
+      <a href="error.html" class="service-link">Learn More →</a>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-number">06</div>
+      <img src="./assets/automation.webp" alt="Automation" class="service-img">
+      <div class="service-icon">🤖</div>
+      <h3 class="service-title">Mine Automation</h3>
+      <p class="service-desc">Autonomous haulage, remote drilling systems, and AI-based operational control centres for safer, more efficient 24/7 mining operations.</p>
+      <a href="error.html" class="service-link">Learn More →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ STATS ══════════════════════════════ -->
+<div class="stats-section">
+  <div class="stats-inner">
+    <div class="stats-item reveal-scale"><span class="stats-num" data-count="250">0</span><span class="stats-label">Projects Delivered</span></div>
+    <div class="stats-item reveal-scale"><span class="stats-num" data-count="48">0</span><span class="stats-label">Countries Active</span></div>
+    <div class="stats-item reveal-scale"><span class="stats-num" data-count="12">0</span><span class="stats-label">Billion Tonnes Processed</span></div>
+    <div class="stats-item reveal-scale"><span class="stats-num" data-count="3200">0</span><span class="stats-label">Employees Worldwide</span></div>
+  </div>
+</div>
+
+<!-- ══ PROJECTS ══════════════════════════ -->
+<section class="section-pad">
+  <div class="section-header">
+    <span class="section-eyebrow reveal">Our Work</span>
+    <h2 class="section-title reveal">Featured <span class="gold">Projects</span></h2>
+    <div class="section-line reveal"></div>
+  </div>
+  <div class="projects-grid">
+    <div class="project-card featured reveal">
+      <img src="./assets/iron operation_11zon.webp" alt="Pilbara Iron Project">
+      <div class="project-overlay">
+        <span class="project-cat">Iron Ore · Australia</span>
+        <h3 class="project-title">Pilbara Iron Ore Expansion — Phase III</h3>
+        <p class="project-desc">A 2.4 billion dollar expansion of the Pilbara iron ore complex, adding 80 Mtpa capacity with fully autonomous haulage fleets across 340 km².</p>
+      </div>
+      <div class="project-arrow">→</div>
+    </div>
+    <div class="project-card reveal">
+      <img src="./assets/copper.webp" alt="Copper Chile">
+      <div class="project-overlay">
+        <span class="project-cat">Copper · Chile</span>
+        <h3 class="project-title">Atacama Copper Complex</h3>
+        <p class="project-desc">Block-cave copper mine at 4,200m altitude with real-time monitoring systems and solar-powered processing plant.</p>
+      </div>
+      <div class="project-arrow">→</div>
+    </div>
+    <div class="project-card reveal">
+      <img src="./assets/gold.webp" alt="Gold Ghana">
+      <div class="project-overlay">
+        <span class="project-cat">Gold · Ghana</span>
+        <h3 class="project-title">Ashanti Gold Belt Operation</h3>
+        <p class="project-desc">Open-pit and underground hybrid mine producing 350 koz/year with industry-leading community development programs.</p>
+      </div>
+      <div class="project-arrow">→</div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:48px;">
+    <a href="error.html" class="btn-outline">View All Projects →</a>
+  </div>
+</section>
+
+<!-- ══ PROCESS ═══════════════════════════ -->
+<section class="section-pad process-section">
+  <div class="section-header">
+    <span class="section-eyebrow reveal">How We Work</span>
+    <h2 class="section-title reveal">Our <span class="gold">Process</span></h2>
+    <div class="section-line reveal"></div>
+  </div>
+  <div class="process-steps">
+    <div class="process-step reveal"><div class="step-num">01</div><h3 class="step-title">Geological Assessment</h3><p class="step-desc">Deep-earth surveys, core sampling, and AI-driven ore body modelling to establish resource estimates and project viability.</p></div>
+    <div class="process-step reveal"><div class="step-num">02</div><h3 class="step-title">Feasibility & Planning</h3><p class="step-desc">Financial modelling, environmental impact assessments, and mine design engineering for bankable feasibility studies.</p></div>
+    <div class="process-step reveal"><div class="step-num">03</div><h3 class="step-title">Construction & Build</h3><p class="step-desc">Infrastructure development, equipment commissioning, and pre-production readiness across all mining operations.</p></div>
+    <div class="process-step reveal"><div class="step-num">04</div><h3 class="step-title">Operations & Closure</h3><p class="step-desc">Full-scale production management, continuous improvement, and responsible mine closure with land rehabilitation.</p></div>
+  </div>
+</section>
+
+<!-- ══ TESTIMONIALS ═══════════════════════ -->
+<section class="section-pad" style="background:var(--dark);">
+  <div class="section-header">
+    <span class="section-eyebrow reveal">Client Words</span>
+    <h2 class="section-title reveal">What Our <span class="gold">Partners Say</span></h2>
+    <div class="section-line reveal"></div>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testimonial-card reveal">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"STACKLY transformed our declining operation into a world-class mine. Their automation systems improved throughput by 34% in the first year and their safety culture is genuinely second to none."</p>
+      <div class="testimonial-author">
+        <img src="./assets/james.webp" alt="James Harrington" class="author-avatar">
+        <div><div class="author-name">James Harrington</div><div class="author-role">CEO, Pacific Resources Ltd</div></div>
+      </div>
+    </div>
+    <div class="testimonial-card reveal">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"From geological survey through to ore processing, STACKLY delivered the entire project on time and 8% under budget. Their environmental management set a new standard for our industry."</p>
+      <div class="testimonial-author">
+        <img src="./assets/sophia.webp" alt="Sophia Chen" class="author-avatar">
+        <div><div class="author-name">Sophia Chen</div><div class="author-role">VP Operations, AsiaMet PLC</div></div>
+      </div>
+    </div>
+    <div class="testimonial-card reveal">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"The STACKLY team brought innovation and integrity to every aspect of our Atacama project. The autonomous fleet reduced our operational costs by 22% and dramatically improved worker safety."</p>
+      <div class="testimonial-author">
+        <img src="./assets/carlos.webp" alt="Carlos Reyes" class="author-avatar">
+        <div><div class="author-name">Carlos Reyes</div><div class="author-role">MD, Andean Copper Corp</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CLIENTS ════════════════════════════ -->
+<div class="clients-section">
+  <div class="section-header" style="margin-bottom:40px;">
+    <span class="section-eyebrow reveal">Trusted By</span>
+    <h2 class="section-title reveal" style="font-size:clamp(1.8rem,4vw,2.8rem);">Global Industry <span class="gold">Leaders</span></h2>
+  </div>
+  <div style="overflow:hidden;">
+    <div class="clients-track">
+      <div class="client-logo">RIO TINTO</div><div class="client-logo">BHP GROUP</div>
+      <div class="client-logo">GLENCORE</div><div class="client-logo">VALE SA</div>
+      <div class="client-logo">ANGLOGOLD</div><div class="client-logo">NEWMONT</div>
+      <div class="client-logo">FREEPORT</div><div class="client-logo">BARRICK</div>
+      <div class="client-logo">RIO TINTO</div><div class="client-logo">BHP GROUP</div>
+      <div class="client-logo">GLENCORE</div><div class="client-logo">VALE SA</div>
+      <div class="client-logo">ANGLOGOLD</div><div class="client-logo">NEWMONT</div>
+      <div class="client-logo">FREEPORT</div><div class="client-logo">BARRICK</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BLOG ═══════════════════════════════ -->
+<section class="section-pad" style="background:var(--dark-2);">
+  <div class="section-header">
+    <span class="section-eyebrow reveal">Latest News</span>
+    <h2 class="section-title reveal">From Our <span class="gold">Journal</span></h2>
+    <div class="section-line reveal"></div>
+  </div>
+  <div class="blog-grid">
+    <div class="blog-card reveal">
+      <div class="blog-img-wrap"><img src="./assets/automation.webp" alt="AI Mining" class="blog-img"></div>
+      <div class="blog-body"><span class="blog-cat">Technology</span><h3 class="blog-title">How AI Is Revolutionising Underground Mine Navigation</h3><p class="blog-excerpt">Machine learning models now predict ore grades in real time, reducing dilution by up to 18% in our latest underground projects.</p><div class="blog-meta"><span>📅 Jun 2026</span><span>⏱ 5 min read</span></div></div>
+    </div>
+    <div class="blog-card reveal">
+      <div class="blog-img-wrap"><img src="./assets/environmental.webp" alt="Sustainability" class="blog-img"></div>
+      <div class="blog-body"><span class="blog-cat">Sustainability</span><h3 class="blog-title">Our Path to Carbon Neutrality: A 2035 Roadmap</h3><p class="blog-excerpt">From solar-powered crushing plants to electric haulage fleets — STACKLY's blueprint for net-zero mining operations.</p><div class="blog-meta"><span>📅 May 2026</span><span>⏱ 7 min read</span></div></div>
+    </div>
+    <div class="blog-card reveal">
+      <div class="blog-img-wrap"><img src="./assets/index.webp" alt="Safety" class="blog-img"></div>
+      <div class="blog-body"><span class="blog-cat">Safety</span><h3 class="blog-title">Zero Harm: Building a Culture Where Safety Comes First</h3><p class="blog-excerpt">An inside look at the behavioural safety programs and wearable tech behind our industry-leading safety record.</p><div class="blog-meta"><span>📅 Apr 2026</span><span>⏱ 4 min read</span></div></div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:40px;">
+    <a href="error.html" class="btn-outline">Read All Articles →</a>
+  </div>
+</section>
+
+<!-- ══ GALLERY STRIP ══════════════════════ -->
+<div class="gallery-strip">
+  <div class="gallery-tile" style="background-image:url('https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&q=85');" onclick="this.classList.toggle('open')">
+    <div class="gallery-caption">Mineral Processing</div>
+    <p class="gallery-desc">State-of-the-art processing plants turn raw ore into refined product, engineered for maximum recovery and minimal waste.</p>
+  </div>
+  <div class="gallery-tile" style="background-image:url('https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=85');" onclick="this.classList.toggle('open')">
+    <div class="gallery-caption">Open-Pit Mining</div>
+    <p class="gallery-desc">Our surface mining operations combine precision blast design with autonomous haul fleets across six continents.</p>
+  </div>
+  <div class="gallery-tile" style="background-image:url('https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&q=85');" onclick="this.classList.toggle('open')">
+    <div class="gallery-caption">Heavy Equipment</div>
+    <p class="gallery-desc">A fleet of 240+ autonomous haul trucks and drill rigs keeps production running safely around the clock.</p>
+  </div>
+  <div class="gallery-tile" style="background-image:url('https://images.unsplash.com/photo-1565008447742-97f6f38c985c?w=600&q=85');" onclick="this.classList.toggle('open')">
+    <div class="gallery-caption">Geological Survey</div>
+    <p class="gallery-desc">LiDAR drones and AI ore-body modelling give our geologists sub-5cm accuracy in every site assessment.</p>
+  </div>
+</div>
+
+<!-- ══ CTA ════════════════════════════════ -->
+<section class="cta-band">
+  <h2 class="cta-title reveal">READY TO <span class="gold">DIG IN?</span></h2>
+  <p class="cta-text reveal">Partner with STACKLY for world-class mining solutions tailored to your project.</p>
+  <div class="cta-buttons reveal">
+    <a href="error.html" class="btn-primary">Start a Project →</a>
+    <a href="error.html" class="btn-outline">Meet the Team</a>
+  </div>
+</section>
+
+<!-- ══ FOOTER ═════════════════════════════ -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <img src="./assets/stackly-removebg-preview.webp" alt="STACKLY" style="height:34px;filter:brightness(1.1);">
+      <p>STACKLY Mining &amp; Industry — powering the world's most critical resources with 25+ years of engineering excellence, safety leadership, and sustainable operations across 48 countries.</p>
+      <div class="socials-row">
+        <a href="error.html" class="social-btn" title="X"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622Zm-1.161 17.52h1.833L7.084 4.126H5.117Z"/></svg></a>
+        <a href="error.html" class="social-btn" title="Facebook"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+        <a href="error.html" class="social-btn" title="LinkedIn"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+        <a href="error.html" class="social-btn" title="YouTube"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="index.html">→ Home</a></li>
+        <li><a href="about.html">→ About Us</a></li>
+        <li><a href="services.html">→ Services</a></li>
+        <li><a href="projects.html">→ Projects</a></li>
+        <li><a href="blog.html">→ News &amp; Blog</a></li>
+        <li><a href="contact.html">→ Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="error.html">→ Surface Mining</a></li>
+        <li><a href="error.html">→ Underground Mining</a></li>
+        <li><a href="error.html">→ Mineral Processing</a></li>
+        <li><a href="error.html">→ Geological Surveys</a></li>
+        <li><a href="error.html">→ Mine Automation</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <ul>
+        <li><span class="footer-static">📍 MMR Complex, Salem, Tamil Nadu</span></li>
+        <li><a href="tel:+919876543210">📞 +91 98765 43210</a></li>
+        <li><a href="mailto:info@stackly.com">✉ info@stackly.com</a></li>
+        <li><span class="footer-static">🕐 Mon–Fri 08:00–18:00 IST</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 STACKLY Mining &amp; Industry. All rights reserved.</p>
+    <div class="footer-bottom-links">
+      <a href="error.html">Privacy Policy</a>
+      <a href="error.html">Terms of Use</a>
+      <a href="error.html">Sitemap</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger, TextPlugin);
+
+/* ── PARTICLE CANVAS ── */
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+function resizeCanvas(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+class Particle{
+  constructor(){ this.reset(); }
+  reset(){
+    this.x = Math.random()*canvas.width; this.y = Math.random()*canvas.height;
+    this.vx = (Math.random()-0.5)*0.4; this.vy = (Math.random()-0.5)*0.4;
+    this.size = Math.random()*1.4+0.3; this.alpha = Math.random()*0.48+0.1;
+    this.color = Math.random()>0.7?'#D4A017':'#ffffff';
+  }
+  update(){ this.x+=this.vx; this.y+=this.vy; if(this.x<0||this.x>canvas.width||this.y<0||this.y>canvas.height) this.reset(); }
+  draw(){ ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fillStyle=this.color; ctx.globalAlpha=this.alpha; ctx.fill(); }
+}
+for(let i=0;i<140;i++) particles.push(new Particle());
+function animateCanvas(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p=>{ p.update(); p.draw(); });
+  ctx.globalAlpha=1;
+  for(let i=0;i<particles.length;i++) for(let j=i+1;j<particles.length;j++){
+    const dx=particles[i].x-particles[j].x, dy=particles[i].y-particles[j].y, d=Math.sqrt(dx*dx+dy*dy);
+    if(d<100){ ctx.beginPath(); ctx.moveTo(particles[i].x,particles[i].y); ctx.lineTo(particles[j].x,particles[j].y); ctx.strokeStyle=`rgba(212,160,23,${(1-d/100)*0.13})`; ctx.lineWidth=0.5; ctx.stroke(); }
+  }
+  requestAnimationFrame(animateCanvas);
+}
+animateCanvas();
+
+/* ── NAV SCROLL ── */
+window.addEventListener('scroll',()=>{ document.getElementById('navbar').classList.toggle('scrolled', window.scrollY>80); });
+
+/* ── HAMBURGER ── */
+function toggleMenu(){
+  document.getElementById('mobileMenu').classList.toggle('open');
+  document.getElementById('hamburger').classList.toggle('is-open');
+}
+
+/* ── HERO ENTRANCE ── */
+const heroTl = gsap.timeline({ delay:0.3 });
+heroTl
+  .fromTo('#hero-eyebrow',{opacity:0,y:28},{opacity:1,y:0,duration:0.75,ease:'power3.out'})
+  .fromTo('#ht1',{opacity:0,y:75,skewY:5},{opacity:1,y:0,skewY:0,duration:0.88,ease:'power4.out'},'-=0.25')
+  .fromTo('#ht2',{opacity:0,y:75,skewY:5},{opacity:1,y:0,skewY:0,duration:0.88,ease:'power4.out'},'-=0.62')
+  .fromTo('#ht3',{opacity:0,y:75,skewY:5},{opacity:1,y:0,skewY:0,duration:0.88,ease:'power4.out'},'-=0.62')
+  .fromTo('#hero-sub',{opacity:0,y:18},{opacity:1,y:0,duration:0.65},'-=0.36')
+  .fromTo('#hero-cta-row',{opacity:0,y:18},{opacity:1,y:0,duration:0.65},'-=0.36');
+
+/* ── TYPED TEXT ── */
+const phrases=['Surface & Underground Mining','Mineral Processing & Refining','Geological Survey & Exploration','Mine Automation & AI Systems','Environmental Rehabilitation'];
+let pIdx=0,cIdx=0,deleting=false;
+const typedEl=document.getElementById('typed-text');
+function typeLoop(){
+  const phrase=phrases[pIdx];
+  if(!deleting){ typedEl.textContent=phrase.slice(0,cIdx+1); cIdx++; if(cIdx===phrase.length){ deleting=true; setTimeout(typeLoop,2200); return; } }
+  else{ typedEl.textContent=phrase.slice(0,cIdx-1); cIdx--; if(cIdx===0){ deleting=false; pIdx=(pIdx+1)%phrases.length; } }
+  setTimeout(typeLoop,deleting?44:84);
+}
+setTimeout(typeLoop,1800);
+
+/* ── SCROLL REVEALS ── */
+function setupReveal(sel,from,to){
+  gsap.utils.toArray(sel).forEach(el=>{
+    gsap.fromTo(el,{opacity:0,...from},{opacity:1,...to,duration:0.88,ease:'power3.out',
+      scrollTrigger:{trigger:el,start:'top 88%',toggleActions:'play none none none'}});
+  });
+}
+setupReveal('.reveal',{y:48},{y:0});
+setupReveal('.reveal-left',{x:-65},{x:0});
+setupReveal('.reveal-right',{x:65},{x:0});
+setupReveal('.reveal-scale',{scale:0.83},{scale:1});
+
+/* ── COUNTERS ── */
+function animCounter(el){
+  const target=parseInt(el.getAttribute('data-count'));
+  gsap.fromTo({val:0},{val:target},{duration:2.4,ease:'power2.out',
+    onUpdate:function(){ el.textContent=Math.round(this.targets()[0].val).toLocaleString(); }});
+}
+document.querySelectorAll('[data-count]').forEach(el=>{
+  ScrollTrigger.create({trigger:el,start:'top 90%',once:true,onEnter:()=>animCounter(el)});
+});
+setTimeout(()=>{ document.querySelectorAll('.stat-num[data-count]').forEach(el=>animCounter(el)); },1800);
+
+/* ── PARALLAX HERO (desktop only) ── */
+if(window.matchMedia('(min-width:769px)').matches){
+  document.addEventListener('mousemove',e=>{
+    const xp=(e.clientX/window.innerWidth-0.5)*18, yp=(e.clientY/window.innerHeight-0.5)*18;
+    gsap.to('.hero-content',{x:xp*0.45,y:yp*0.45,duration:1,ease:'power2.out'});
+    gsap.to('.hero-grid',{x:xp*0.18,y:yp*0.18,duration:1.4,ease:'power2.out'});
+  });
+}
+
+/* ── SERVICE CARDS STAGGER ── */
+gsap.utils.toArray('.service-card').forEach((card,i)=>{
+  gsap.fromTo(card,{opacity:0,y:55},{opacity:1,y:0,duration:0.68,delay:i*0.09,
+    scrollTrigger:{trigger:card,start:'top 88%',toggleActions:'play none none none'}});
+});
+
+/* ── BLOG STAGGER ── */
+gsap.utils.toArray('.blog-card').forEach((card,i)=>{
+  gsap.fromTo(card,{opacity:0,y:48},{opacity:1,y:0,duration:0.68,delay:i*0.11,
+    scrollTrigger:{trigger:card,start:'top 88%',toggleActions:'play none none none'}});
+});
+</script>
+</body>
+</html>
